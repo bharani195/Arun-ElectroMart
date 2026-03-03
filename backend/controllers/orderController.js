@@ -155,8 +155,24 @@ export const updateOrderStatus = async (req, res) => {
 
         if (orderStatus) {
             order.orderStatus = orderStatus;
+
+            // Auto-sync payment status based on order status
+            if (orderStatus === 'Confirmed' && order.paymentMethod !== 'COD') {
+                // Online payment orders: mark as Paid when confirmed
+                order.paymentStatus = 'Paid';
+            }
+
+            if (orderStatus === 'Delivered') {
+                // All orders (including COD): mark as Paid on delivery
+                order.paymentStatus = 'Paid';
+            }
+
+            if (orderStatus === 'Cancelled' && order.paymentStatus !== 'Paid') {
+                order.paymentStatus = 'Cancelled';
+            }
         }
 
+        // Allow manual override of payment status
         if (paymentStatus) {
             order.paymentStatus = paymentStatus;
         }

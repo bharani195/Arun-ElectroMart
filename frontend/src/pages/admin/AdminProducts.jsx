@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import toast from '../../utils/toast';
 import { Link } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import api from '../../utils/api';
 import AdminLayout from '../../components/layout/AdminLayout';
+import CustomDropdown from '../../components/common/CustomDropdown';
+import { useConfirm } from '../../components/common/ConfirmDialog';
 
 const AdminProducts = () => {
     const [products, setProducts] = useState([]);
@@ -12,6 +15,7 @@ const AdminProducts = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const confirm = useConfirm();
 
     useEffect(() => {
         fetchProducts();
@@ -46,13 +50,14 @@ const AdminProducts = () => {
     const handleSearch = (e) => { e.preventDefault(); setPage(1); fetchProducts(); };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this product?')) return;
+        const ok = await confirm('Do you really want to delete this product? This action cannot be undone.', { title: 'Delete Product', confirmText: 'Delete' });
+        if (!ok) return;
         try {
             await api.delete(`/products/${id}`);
             fetchProducts();
         } catch (error) {
             console.error('Error deleting product:', error);
-            alert('Error deleting product');
+            toast.error('Error deleting product');
         }
     };
 
@@ -92,16 +97,11 @@ const AdminProducts = () => {
                         <FiSearch size={16} />
                     </button>
                 </form>
-                <select
+                <CustomDropdown
                     value={selectedCategory}
-                    onChange={(e) => { setSelectedCategory(e.target.value); setPage(1); }}
-                    className="admin-select"
-                >
-                    <option value="">All Categories</option>
-                    {categories.map(cat => (
-                        <option key={cat._id} value={cat._id}>{cat.name}</option>
-                    ))}
-                </select>
+                    onChange={(val) => { setSelectedCategory(val); setPage(1); }}
+                    options={[{ value: '', label: 'All Categories' }, ...categories.map(cat => ({ value: cat._id, label: cat.name }))]}
+                />
             </div>
 
             {/* Products Table */}

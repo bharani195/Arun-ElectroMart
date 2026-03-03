@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from '../utils/toast';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
@@ -38,7 +39,7 @@ const Orders = () => {
             setOrders(data);
         } catch (error) {
             console.error('Error fetching orders:', error);
-            alert('Error loading orders: ' + (error.response?.data?.message || error.message));
+            toast.error('Error loading orders: ' + (error.response?.data?.message || error.message));
         } finally {
             setLoading(false);
         }
@@ -58,8 +59,6 @@ const Orders = () => {
         const colors = {
             Pending: '#f59e0b',
             Confirmed: '#3b82f6',
-            Processing: '#8b5cf6',
-            Shipped: '#f97316',
             Delivered: '#10b981',
             Cancelled: '#ef4444',
         };
@@ -70,8 +69,6 @@ const Orders = () => {
         const icons = {
             Pending: FiClock,
             Confirmed: FiCheckCircle,
-            Processing: FiPackage,
-            Shipped: FiTruck,
             Delivered: FiCheckCircle,
             Cancelled: FiXCircle,
         };
@@ -90,7 +87,7 @@ const Orders = () => {
 
     if (loading) {
         return (
-            <div style={{ marginTop: '140px', minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div style={{ minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <div className="loading-spinner"></div>
             </div>
         );
@@ -98,7 +95,7 @@ const Orders = () => {
 
     if (orders.length === 0) {
         return (
-            <div style={{ marginTop: '140px', minHeight: '60vh', paddingBottom: 'var(--space-16)' }}>
+            <div style={{ minHeight: '60vh', paddingBottom: 'var(--space-16)' }}>
                 <div className="container">
                     <div className="glass-card" style={{ textAlign: 'center', padding: 'var(--space-16)' }}>
                         <FiShoppingBag size={64} style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }} />
@@ -117,7 +114,7 @@ const Orders = () => {
     }
 
     return (
-        <div style={{ marginTop: '140px', minHeight: '60vh', paddingBottom: 'var(--space-16)' }}>
+        <div style={{ minHeight: '60vh', paddingBottom: 'var(--space-16)' }}>
             <div className="container">
                 <h1 style={{ fontSize: 'var(--text-4xl)', fontWeight: 700, marginBottom: 'var(--space-2)' }}>
                     My Orders
@@ -196,8 +193,8 @@ const Orders = () => {
                                 {/* Order Details (Expanded) */}
                                 {isExpanded && (
                                     <div style={{ marginTop: 'var(--space-6)' }}>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--space-8)' }}>
-                                            {/* Left Column - Items */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6)' }}>
+                                            {/* Order Items */}
                                             <div>
                                                 <h4 style={{ fontSize: 'var(--text-lg)', fontWeight: 600, marginBottom: 'var(--space-4)' }}>
                                                     Order Items ({order.items.length})
@@ -240,77 +237,74 @@ const Orders = () => {
                                                 </div>
                                             </div>
 
-                                            {/* Right Column - Details */}
+                                            {/* Shipping Address */}
                                             <div>
-                                                {/* Shipping Address */}
-                                                <div style={{ marginBottom: 'var(--space-6)' }}>
-                                                    <h4 style={{ fontSize: 'var(--text-base)', fontWeight: 600, marginBottom: 'var(--space-3)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                                                        <FiMapPin size={18} color="var(--brand-primary)" />
-                                                        Shipping Address
-                                                    </h4>
-                                                    <div style={{ padding: 'var(--space-4)', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
-                                                        <p style={{ fontWeight: 600, marginBottom: 'var(--space-1)' }}>
-                                                            {order.shippingAddress.name}
-                                                        </p>
-                                                        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginBottom: 'var(--space-1)' }}>
-                                                            {order.shippingAddress.phone}
-                                                        </p>
-                                                        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                                                            {order.shippingAddress.addressLine1}
-                                                            {order.shippingAddress.addressLine2 && `, ${order.shippingAddress.addressLine2}`}
-                                                            <br />
-                                                            {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
-                                                        </p>
+                                                <h4 style={{ fontSize: 'var(--text-base)', fontWeight: 600, marginBottom: 'var(--space-3)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                                                    <FiMapPin size={18} color="var(--brand-primary)" />
+                                                    Shipping Address
+                                                </h4>
+                                                <div style={{ padding: 'var(--space-4)', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
+                                                    <p style={{ fontWeight: 600, marginBottom: 'var(--space-1)' }}>
+                                                        {order.shippingAddress.name}
+                                                    </p>
+                                                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginBottom: 'var(--space-1)' }}>
+                                                        {order.shippingAddress.phone}
+                                                    </p>
+                                                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                                                        {order.shippingAddress.addressLine1}
+                                                        {order.shippingAddress.addressLine2 && `, ${order.shippingAddress.addressLine2}`}
+                                                        <br />
+                                                        {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Payment Details */}
+                                            <div>
+                                                <h4 style={{ fontSize: 'var(--text-base)', fontWeight: 600, marginBottom: 'var(--space-3)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                                                    <FiCreditCard size={18} color="var(--brand-primary)" />
+                                                    Payment Details
+                                                </h4>
+                                                <div style={{ padding: 'var(--space-4)', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
+                                                        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Method</span>
+                                                        <span style={{ fontWeight: 600 }}>{order.paymentMethod}</span>
+                                                    </div>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Payment Status</span>
+                                                        <span
+                                                            style={{
+                                                                fontWeight: 600,
+                                                                color: order.paymentStatus === 'Paid' ? 'var(--accent-teal)' : 'var(--brand-copper)',
+                                                            }}
+                                                        >
+                                                            {order.paymentStatus}
+                                                        </span>
                                                     </div>
                                                 </div>
+                                            </div>
 
-                                                {/* Payment Info */}
-                                                <div style={{ marginBottom: 'var(--space-6)' }}>
-                                                    <h4 style={{ fontSize: 'var(--text-base)', fontWeight: 600, marginBottom: 'var(--space-3)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                                                        <FiCreditCard size={18} color="var(--brand-primary)" />
-                                                        Payment Details
-                                                    </h4>
-                                                    <div style={{ padding: 'var(--space-4)', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
-                                                            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Method</span>
-                                                            <span style={{ fontWeight: 600 }}>{order.paymentMethod}</span>
-                                                        </div>
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Status</span>
-                                                            <span
-                                                                style={{
-                                                                    fontWeight: 600,
-                                                                    color: order.paymentStatus === 'Paid' ? 'var(--accent-teal)' : 'var(--brand-copper)',
-                                                                }}
-                                                            >
-                                                                {order.paymentStatus}
-                                                            </span>
-                                                        </div>
+                                            {/* Price Details */}
+                                            <div>
+                                                <h4 style={{ fontSize: 'var(--text-base)', fontWeight: 600, marginBottom: 'var(--space-3)' }}>
+                                                    Price Details
+                                                </h4>
+                                                <div style={{ padding: 'var(--space-4)', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
+                                                        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Subtotal</span>
+                                                        <span>₹{order.subtotal.toLocaleString()}</span>
                                                     </div>
-                                                </div>
-
-                                                {/* Price Summary */}
-                                                <div>
-                                                    <h4 style={{ fontSize: 'var(--text-base)', fontWeight: 600, marginBottom: 'var(--space-3)' }}>
-                                                        Price Details
-                                                    </h4>
-                                                    <div style={{ padding: 'var(--space-4)', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
-                                                            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Subtotal</span>
-                                                            <span>₹{order.subtotal.toLocaleString()}</span>
-                                                        </div>
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-3)', paddingBottom: 'var(--space-3)', borderBottom: '1px solid var(--border-light)' }}>
-                                                            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Shipping</span>
-                                                            <span style={{ color: order.shippingCharge === 0 ? 'var(--accent-teal)' : 'inherit' }}>
-                                                                {order.shippingCharge === 0 ? 'FREE' : `₹${order.shippingCharge}`}
-                                                            </span>
-                                                        </div>
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                            <span style={{ fontWeight: 700 }}>Total</span>
-                                                            <span style={{ fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--brand-primary)' }}>
-                                                                ₹{order.totalAmount.toLocaleString()}
-                                                            </span>
-                                                        </div>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-3)', paddingBottom: 'var(--space-3)', borderBottom: '1px solid var(--border-light)' }}>
+                                                        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Shipping</span>
+                                                        <span style={{ color: order.shippingCharge === 0 ? 'var(--accent-teal)' : 'inherit' }}>
+                                                            {order.shippingCharge === 0 ? 'FREE' : `₹${order.shippingCharge}`}
+                                                        </span>
+                                                    </div>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                        <span style={{ fontWeight: 700 }}>Total</span>
+                                                        <span style={{ fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--brand-primary)' }}>
+                                                            ₹{order.totalAmount.toLocaleString()}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>

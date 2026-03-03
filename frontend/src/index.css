@@ -632,7 +632,7 @@ h6 {
   background: var(--bg-primary);
   border-bottom: 1px solid var(--border-light);
   padding: var(--space-2) 0;
-  margin-top: 58px;
+  margin-top: 68px;
   margin-bottom: 0;
   position: relative;
   z-index: 100;
@@ -1024,7 +1024,7 @@ h6 {
    Section Styling
    ======================================== */
 .section {
-  padding: var(--space-16) 0;
+  padding: var(--space-8) 0;
 }
 
 .section-header {
@@ -1493,8 +1493,8 @@ h6 {
    Footer - Elegant Dark
    ======================================== */
 .footer {
-  background: var(--brand-primary);
-  color: rgba(255, 255, 255, 0.8);
+  background: #000000;
+  color: white;
   padding: var(--space-16) 0 var(--space-8);
   margin-top: var(--space-16);
   position: relative;
@@ -2574,4 +2574,50 @@ h6 {
 
 *::-webkit-scrollbar-thumb:hover {
   background: var(--brand-primary-dark);
+}
+
+/* =========================================================
+   SELECT / DROPDOWN — Premium Customer-Facing Style
+   ========================================================= */
+select,
+select.form-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 10px 40px 10px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238b7355' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+select:hover,
+select.form-input:hover {
+  border-color: var(--brand-gold);
+  box-shadow: 0 2px 8px rgba(201, 160, 80, 0.12);
+}
+
+select:focus,
+select.form-input:focus {
+  border-color: var(--brand-gold);
+  box-shadow: 0 0 0 3px rgba(201, 160, 80, 0.15), 0 2px 8px rgba(201, 160, 80, 0.1);
+}
+
+select option {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--bg-primary);
 }

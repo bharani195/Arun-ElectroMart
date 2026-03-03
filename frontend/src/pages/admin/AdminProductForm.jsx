@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import toast from '../../utils/toast';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { FiArrowLeft, FiSave, FiImage, FiPlus, FiTrash2, FiX } from 'react-icons/fi';
 import api from '../../utils/api';
 import AdminLayout from '../../components/layout/AdminLayout';
+import CustomDropdown from '../../components/common/CustomDropdown';
 
 const AdminProductForm = () => {
     const navigate = useNavigate();
@@ -55,7 +57,7 @@ const AdminProductForm = () => {
             });
         } catch (error) {
             console.error('Error fetching product:', error);
-            alert('Error loading product');
+            toast.error('Error loading product');
             navigate('/admin/products');
         } finally {
             setLoading(false);
@@ -81,7 +83,7 @@ const AdminProductForm = () => {
             navigate('/admin/products');
         } catch (error) {
             console.error('Error saving product:', error);
-            alert('Error saving product: ' + (error.response?.data?.message || error.message));
+            toast.error('Error saving product: ' + (error.response?.data?.message || error.message));
         } finally {
             setSaving(false);
         }
@@ -221,13 +223,11 @@ const AdminProductForm = () => {
                             <h3 className="admin-form-section-title">Organization</h3>
                             <div className="admin-form-group">
                                 <label className="admin-form-label">Category *</label>
-                                <select className="admin-form-input" value={formData.category}
-                                    onChange={(e) => updateField('category', e.target.value)} required>
-                                    <option value="">Select Category</option>
-                                    {categories.map(cat => (
-                                        <option key={cat._id} value={cat._id}>{cat.name}</option>
-                                    ))}
-                                </select>
+                                <CustomDropdown
+                                    value={formData.category}
+                                    onChange={(val) => updateField('category', val)}
+                                    options={[{ value: '', label: 'Select Category' }, ...categories.map(cat => ({ value: cat._id, label: cat.name }))]}
+                                />
                             </div>
                             <div className="admin-form-group">
                                 <label className="admin-form-label">Brand</label>

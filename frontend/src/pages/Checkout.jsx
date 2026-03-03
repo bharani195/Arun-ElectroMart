@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from '../utils/toast';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useConfirm } from '../components/common/ConfirmDialog';
 import api from '../utils/api';
 import {
     FiMapPin,
@@ -19,6 +21,7 @@ const Checkout = () => {
     const navigate = useNavigate();
     const { cart, clearCart } = useCart();
     const { isAuthenticated, user } = useAuth();
+    const confirm = useConfirm();
 
     const [addresses, setAddresses] = useState([]);
     const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -89,12 +92,13 @@ const Checkout = () => {
                 pincode: '',
             });
         } catch (error) {
-            alert('Error adding address: ' + (error.response?.data?.message || error.message));
+            toast.error('Error adding address: ' + (error.response?.data?.message || error.message));
         }
     };
 
     const handleDeleteAddress = async (addressId) => {
-        if (!window.confirm('Are you sure you want to delete this address?')) return;
+        const ok = await confirm('Do you really want to delete this address? This action cannot be undone.', { title: 'Delete Address', confirmText: 'Delete' });
+        if (!ok) return;
 
         try {
             await api.delete(`/users/address/${addressId}`);
@@ -103,7 +107,7 @@ const Checkout = () => {
                 setSelectedAddressId(null);
             }
         } catch (error) {
-            alert('Error deleting address: ' + (error.response?.data?.message || error.message));
+            toast.error('Error deleting address: ' + (error.response?.data?.message || error.message));
         }
     };
 
@@ -122,12 +126,12 @@ const Checkout = () => {
 
     const handlePlaceOrder = async () => {
         if (!selectedAddressId) {
-            alert('Please select a shipping address');
+            toast.warn('Please select a shipping address');
             return;
         }
 
         if (!paymentMethod) {
-            alert('Please select a payment method');
+            toast.warn('Please select a payment method');
             return;
         }
 
@@ -154,19 +158,76 @@ const Checkout = () => {
                 shippingCharge: calculateShipping(),
             };
 
-            const { data } = await api.post('/orders/create', orderData);
+            // Step 1: Create order on our server
+            const { data: order } = await api.post('/orders/create', orderData);
 
-            // Clear cart
+            if (paymentMethod === 'Online') {
+                // Step 2: Create Razorpay order
+                const { data: razorpayOrder } = await api.post('/payment/create-order', {
+                    amount: calculateTotal(),
+                    orderId: order._id,
+                });
+
+                // Step 3: Open Razorpay payment popup
+                const options = {
+                    key: razorpayOrder.key,
+                    amount: razorpayOrder.amount,
+                    currency: razorpayOrder.currency,
+                    name: 'AbhiElectromart',
+                    description: `Order #${order.orderNumber}`,
+                    order_id: razorpayOrder.id,
+                    handler: async function (response) {
+                        try {
+                            // Step 4: Verify payment on server
+                            await api.post('/payment/verify', {
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                orderId: order._id,
+                            });
+
+                            // Clear cart and redirect
+                            await clearCart();
+                            toast.success(`Payment successful! Order Number: ${order.orderNumber}`);
+                            navigate('/orders');
+                        } catch (err) {
+                            console.error('Payment verification failed:', err);
+                            toast.error('Payment verification failed. Please contact support.');
+                            navigate('/orders');
+                        }
+                    },
+                    prefill: {
+                        name: user?.name || selectedAddress.name,
+                        email: user?.email || '',
+                        contact: selectedAddress.phone,
+                    },
+                    theme: {
+                        color: '#8b7355',
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            setPlacing(false);
+                            toast.warn('Payment was cancelled. Your order has been saved. You can complete payment from your orders page.');
+                        },
+                    },
+                };
+
+                const rzp = new window.Razorpay(options);
+                rzp.on('payment.failed', function (response) {
+                    toast.error('Payment failed: ' + response.error.description);
+                    setPlacing(false);
+                });
+                rzp.open();
+                return; // Don't set placing=false here, Razorpay popup is open
+            }
+
+            // COD flow — just clear cart and redirect
             await clearCart();
-
-            // Show success message
-            alert(`Order placed successfully! Order Number: ${data.orderNumber}`);
-
-            // Redirect to orders page
+            toast.success(`Order placed successfully! Order Number: ${order.orderNumber}`);
             navigate('/orders');
         } catch (error) {
             console.error('Error placing order:', error);
-            alert('Error placing order: ' + (error.response?.data?.message || error.message));
+            toast.error('Error placing order: ' + (error.response?.data?.message || error.message));
         } finally {
             setPlacing(false);
         }
@@ -174,14 +235,14 @@ const Checkout = () => {
 
     if (loading) {
         return (
-            <div style={{ marginTop: '140px', minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div style={{ minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <div className="loading-spinner"></div>
             </div>
         );
     }
 
     return (
-        <div style={{ marginTop: '140px', minHeight: '60vh', paddingBottom: 'var(--space-16)' }}>
+        <div style={{ minHeight: '60vh', paddingBottom: 'var(--space-16)' }}>
             <div className="container">
                 <h1 style={{ fontSize: 'var(--text-4xl)', fontWeight: 700, marginBottom: 'var(--space-8)' }}>
                     Checkout
@@ -440,7 +501,7 @@ const Checkout = () => {
                                         <div>
                                             <h4 style={{ fontSize: 'var(--text-lg)', fontWeight: 600 }}>Online Payment</h4>
                                             <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
-                                                UPI, Cards, Net Banking (Coming Soon)
+                                                UPI, Cards, Net Banking via Razorpay
                                             </p>
                                         </div>
                                     </div>

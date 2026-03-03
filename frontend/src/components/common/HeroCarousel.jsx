@@ -13,26 +13,26 @@ const HeroCarousel = ({ slides = [] }) => {
             title: 'Premium Electrical Solutions',
             subtitle: 'Power Your World',
             description: 'Discover cutting-edge electrical products for your home and business',
-            image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1920&h=600&fit=crop',
+            image: '/images/hero/hero1.jpg',
             cta: 'Shop Now',
             ctaLink: '/products'
         },
         {
             id: 2,
-            title: 'Smart Home Technology',
-            subtitle: 'Innovation at Your Fingertips',
-            description: 'Transform your space with intelligent electrical solutions',
-            image: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=1920&h=600&fit=crop',
-            cta: 'Explore',
-            ctaLink: '/products?filter=featured'
+            title: 'Professional Grade Components',
+            subtitle: 'Reliability in Every Connection',
+            description: 'High-quality circuit breakers, wires, and switches for demanding environments',
+            image: '/images/hero/hero2.jpg',
+            cta: 'Browse Catalog',
+            ctaLink: '/products'
         },
         {
             id: 3,
-            title: 'Industrial Grade Equipment',
-            subtitle: 'Built to Last',
-            description: 'Professional-grade electrical equipment for demanding applications',
-            image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&h=600&fit=crop',
-            cta: 'View Products',
+            title: 'Smart Home Innovation',
+            subtitle: 'The Future is Intelligent',
+            description: 'Transform your space with advanced energy management and automation solutions',
+            image: '/images/hero/hero3.jpg',
+            cta: 'Explore Smart Tech',
             ctaLink: '/products'
         }
     ];
@@ -76,11 +76,13 @@ const HeroCarousel = ({ slides = [] }) => {
                         key={slide.id}
                         className={`carousel-slide ${index === currentSlide ? 'active' : ''}`}
                         style={{
-                            background: 'linear-gradient(135deg, #8b7355 0%, #6b5d4f 50%, #5a4a3a 100%)'
+                            backgroundImage: `url("${slide.image}")`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center'
                         }}
                     >
                         <div className="carousel-content container">
-                            <div className="carousel-text animate-fade-in-up">
+                            <div className="carousel-text animate-fade-in-up" style={{ textShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
                                 <p className="carousel-subtitle">{slide.subtitle}</p>
                                 <h1 className="carousel-title">{slide.title}</h1>
                                 <p className="carousel-description">{slide.description}</p>

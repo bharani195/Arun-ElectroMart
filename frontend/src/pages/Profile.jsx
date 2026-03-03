@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useConfirm } from '../components/common/ConfirmDialog';
 import api from '../utils/api';
 import {
     FiUser,
@@ -23,6 +24,7 @@ import {
 const Profile = () => {
     const { user: authUser, logout } = useAuth();
     const navigate = useNavigate();
+    const confirm = useConfirm();
     const [user, setUser] = useState(null);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -139,7 +141,8 @@ const Profile = () => {
     };
 
     const handleDeleteAddress = async (addressId) => {
-        if (!window.confirm('Are you sure you want to delete this address?')) return;
+        const ok = await confirm('Do you really want to delete this address? This action cannot be undone.', { title: 'Delete Address', confirmText: 'Delete' });
+        if (!ok) return;
         try {
             await api.delete(`/users/address/${addressId}`);
             setUser({ ...user, addresses: user.addresses.filter((a) => a._id !== addressId) });
@@ -192,7 +195,7 @@ const Profile = () => {
 
     if (!user) {
         return (
-            <div className="container" style={{ marginTop: '120px', padding: 'var(--space-8)' }}>
+            <div className="container" style={{ padding: 'var(--space-8)' }}>
                 <div className="glass-card" style={{ padding: 'var(--space-8)', textAlign: 'center' }}>
                     <h2 style={{ marginBottom: 'var(--space-4)' }}>Unable to Load Profile</h2>
                     <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-6)' }}>
@@ -212,7 +215,7 @@ const Profile = () => {
     }
 
     return (
-        <div className="container" style={{ marginTop: '120px', padding: 'var(--space-8) 0', marginBottom: 'var(--space-8)' }}>
+        <div className="container" style={{ padding: 'var(--space-8) 0', marginBottom: 'var(--space-8)' }}>
             {/* Message Alert */}
             {message.text && (
                 <div

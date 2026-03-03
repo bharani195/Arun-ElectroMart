@@ -16,7 +16,7 @@ const CategoryNav = () => {
                 <ul className="category-nav-list" style={{ justifyContent: 'center' }}>
                     {navItems.map((item, index) => (
                         <li key={index} className="category-nav-item">
-                            <Link to={item.path}>
+                            <Link to={item.path} onClick={() => window.scrollTo(0, 0)}>
                                 <span>{item.emoji}</span>
                                 {item.label}
                             </Link>

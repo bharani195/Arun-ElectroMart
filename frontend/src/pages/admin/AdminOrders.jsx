@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from '../../utils/toast';
 import {
     FiPackage, FiShoppingCart, FiChevronDown, FiChevronUp,
     FiMapPin, FiCreditCard, FiCheckCircle, FiClock, FiTruck, FiXCircle, FiDownload,
@@ -7,6 +8,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import api from '../../utils/api';
 import AdminLayout from '../../components/layout/AdminLayout';
+import CustomDropdown from '../../components/common/CustomDropdown';
 
 const AdminOrders = () => {
     const [orders, setOrders] = useState([]);
@@ -15,7 +17,7 @@ const AdminOrders = () => {
     const [statusFilter, setStatusFilter] = useState('All');
     const [updatingStatus, setUpdatingStatus] = useState({});
 
-    const statusOptions = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+    const statusOptions = ['Pending', 'Confirmed', 'Delivered', 'Cancelled'];
     const filterOptions = ['All', ...statusOptions];
 
     useEffect(() => { fetchOrders(); }, []);
@@ -27,7 +29,7 @@ const AdminOrders = () => {
             setOrders(data.orders || data);
         } catch (error) {
             console.error('Error fetching orders:', error);
-            alert('Error loading orders: ' + (error.response?.data?.message || error.message));
+            toast.error('Error loading orders: ' + (error.response?.data?.message || error.message));
         } finally {
             setLoading(false);
         }
@@ -43,14 +45,14 @@ const AdminOrders = () => {
     const handleStatusUpdate = async (orderId, newStatus) => {
         try {
             setUpdatingStatus({ ...updatingStatus, [orderId]: true });
-            await api.put(`/orders/admin/${orderId}/status`, { orderStatus: newStatus });
+            const { data: updatedOrder } = await api.put(`/orders/admin/${orderId}/status`, { orderStatus: newStatus });
             setOrders(orders.map(order =>
-                order._id === orderId ? { ...order, orderStatus: newStatus } : order
+                order._id === orderId ? { ...order, orderStatus: updatedOrder.orderStatus, paymentStatus: updatedOrder.paymentStatus } : order
             ));
-            alert('Order status updated successfully!');
+            toast.success('Order status updated successfully!');
         } catch (error) {
             console.error('Error updating status:', error);
-            alert('Error updating status: ' + (error.response?.data?.message || error.message));
+            toast.error('Error updating status: ' + (error.response?.data?.message || error.message));
         } finally {
             setUpdatingStatus({ ...updatingStatus, [orderId]: false });
         }
@@ -58,16 +60,16 @@ const AdminOrders = () => {
 
     const getStatusBadge = (status) => {
         const map = {
-            Pending: 'amber', Confirmed: 'blue', Processing: 'purple',
-            Shipped: 'orange', Delivered: 'green', Cancelled: 'red',
+            Pending: 'amber', Confirmed: 'blue',
+            Delivered: 'green', Cancelled: 'red',
         };
         return map[status] || 'gray';
     };
 
     const getStatusIcon = (status) => {
         const icons = {
-            Pending: FiClock, Confirmed: FiCheckCircle, Processing: FiPackage,
-            Shipped: FiTruck, Delivered: FiCheckCircle, Cancelled: FiXCircle,
+            Pending: FiClock, Confirmed: FiCheckCircle,
+            Delivered: FiCheckCircle, Cancelled: FiXCircle,
         };
         const Icon = icons[status] || FiPackage;
         return <Icon size={14} />;
@@ -397,14 +399,12 @@ const AdminOrders = () => {
                                     >
                                         <FiDownload size={14} /> Invoice
                                     </button>
-                                    <div className="admin-order-expand">
-                                        {isExpanded ? <FiChevronUp size={18} /> : <FiChevronDown size={18} />}
-                                    </div>
                                 </div>
 
                                 {/* Order Details */}
                                 {isExpanded && (
                                     <div className="admin-order-details">
+                                        {/* Order Items */}
                                         <div>
                                             <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>
                                                 Order Items ({order.items.length})
@@ -421,53 +421,49 @@ const AdminOrders = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                        <div>
-                                            {/* Status Update */}
-                                            <div className="admin-detail-section">
-                                                <h4 className="admin-detail-title">Update Status</h4>
-                                                <select
-                                                    value={order.orderStatus}
-                                                    onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                                                    disabled={updatingStatus[order._id]}
-                                                    className="admin-select" style={{ width: '100%' }}
-                                                >
-                                                    {statusOptions.map(status => (
-                                                        <option key={status} value={status}>{status}</option>
-                                                    ))}
-                                                </select>
+
+                                        <div className="admin-detail-section">
+                                            <h4 className="admin-detail-title">Update Status</h4>
+                                            <CustomDropdown
+                                                value={order.orderStatus}
+                                                onChange={(val) => handleStatusUpdate(order._id, val)}
+                                                options={statusOptions}
+                                                disabled={updatingStatus[order._id]}
+                                            />
+                                        </div>
+
+                                        {/* Shipping Address */}
+                                        <div className="admin-detail-section">
+                                            <h4 className="admin-detail-title">
+                                                <FiMapPin size={14} color="#4f46e5" /> Shipping Address
+                                            </h4>
+                                            <div className="admin-detail-box">
+                                                <p style={{ fontWeight: 600, marginBottom: '4px' }}>{order.shippingAddress.name}</p>
+                                                <p style={{ marginBottom: '4px' }}>{order.shippingAddress.phone}</p>
+                                                <p>
+                                                    {order.shippingAddress.addressLine1}
+                                                    {order.shippingAddress.addressLine2 && `, ${order.shippingAddress.addressLine2}`}
+                                                    <br />
+                                                    {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+                                                </p>
                                             </div>
-                                            {/* Shipping Address */}
-                                            <div className="admin-detail-section">
-                                                <h4 className="admin-detail-title">
-                                                    <FiMapPin size={14} color="#4f46e5" /> Shipping Address
-                                                </h4>
-                                                <div className="admin-detail-box">
-                                                    <p style={{ fontWeight: 600, marginBottom: '4px' }}>{order.shippingAddress.name}</p>
-                                                    <p style={{ marginBottom: '4px' }}>{order.shippingAddress.phone}</p>
-                                                    <p>
-                                                        {order.shippingAddress.addressLine1}
-                                                        {order.shippingAddress.addressLine2 && `, ${order.shippingAddress.addressLine2}`}
-                                                        <br />
-                                                        {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
-                                                    </p>
+                                        </div>
+
+                                        {/* Payment */}
+                                        <div className="admin-detail-section">
+                                            <h4 className="admin-detail-title">
+                                                <FiCreditCard size={14} color="#4f46e5" /> Payment
+                                            </h4>
+                                            <div className="admin-detail-box">
+                                                <div className="admin-detail-row">
+                                                    <span>Method</span>
+                                                    <span>{order.paymentMethod}</span>
                                                 </div>
-                                            </div>
-                                            {/* Payment */}
-                                            <div className="admin-detail-section">
-                                                <h4 className="admin-detail-title">
-                                                    <FiCreditCard size={14} color="#4f46e5" /> Payment
-                                                </h4>
-                                                <div className="admin-detail-box">
-                                                    <div className="admin-detail-row">
-                                                        <span>Method</span>
-                                                        <span>{order.paymentMethod}</span>
-                                                    </div>
-                                                    <div className="admin-detail-row">
-                                                        <span>Status</span>
-                                                        <span style={{ color: order.paymentStatus === 'Paid' ? '#5a7a5a' : '#b8860b' }}>
-                                                            {order.paymentStatus}
-                                                        </span>
-                                                    </div>
+                                                <div className="admin-detail-row">
+                                                    <span>Payment Status</span>
+                                                    <span style={{ color: order.paymentStatus === 'Paid' ? '#5a7a5a' : '#b8860b' }}>
+                                                        {order.paymentStatus}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>

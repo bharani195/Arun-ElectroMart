@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FiMessageSquare, FiChevronDown, FiChevronUp, FiSend, FiMessageCircle } from 'react-icons/fi';
+import toast from '../../utils/toast';
+import { FiMessageSquare, FiChevronDown, FiChevronUp, FiSend, FiMessageCircle, FiSearch } from 'react-icons/fi';
 import api from '../../utils/api';
 import AdminLayout from '../../components/layout/AdminLayout';
+import CustomDropdown from '../../components/common/CustomDropdown';
 import './admin.css';
 
 const priorityConfig = {
@@ -26,14 +28,17 @@ const AdminSupport = () => {
     const [replyText, setReplyText] = useState({});
     const [updating, setUpdating] = useState({});
     const [filter, setFilter] = useState('All');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchInput, setSearchInput] = useState('');
 
     useEffect(() => { fetchData(); }, []);
 
-    const fetchData = async () => {
+    const fetchData = async (search = '') => {
         try {
             setLoading(true);
+            const params = search ? `?search=${encodeURIComponent(search)}` : '';
             const [ticketRes, chatRes] = await Promise.all([
-                api.get('/admin/support'),
+                api.get(`/admin/support${params}`),
                 api.get('/admin/chatlogs'),
             ]);
             setTickets(ticketRes.data);
@@ -45,13 +50,25 @@ const AdminSupport = () => {
         }
     };
 
+    const handleSearch = (e) => {
+        e.preventDefault();
+        setSearchQuery(searchInput);
+        fetchData(searchInput);
+    };
+
+    const clearSearch = () => {
+        setSearchInput('');
+        setSearchQuery('');
+        fetchData('');
+    };
+
     const handleStatusUpdate = async (id, status) => {
         try {
             setUpdating(prev => ({ ...prev, [id]: true }));
             const { data } = await api.put(`/admin/support/${id}`, { status });
             setTickets(tickets.map(t => t._id === id ? data : t));
         } catch (err) {
-            alert('Error updating status');
+            toast.error('Error updating status');
         } finally {
             setUpdating(prev => ({ ...prev, [id]: false }));
         }
@@ -59,14 +76,14 @@ const AdminSupport = () => {
 
     const handleReply = async (id) => {
         const reply = replyText[id];
-        if (!reply?.trim()) return alert('Please enter a reply');
+        if (!reply?.trim()) return toast.warn('Please enter a reply');
         try {
             setUpdating(prev => ({ ...prev, [id]: true }));
-            const { data } = await api.put(`/admin/support/${id}`, { adminReply: reply, status: 'In Progress' });
+            const { data } = await api.put(`/admin/support/${id}`, { adminReply: reply });
             setTickets(tickets.map(t => t._id === id ? data : t));
             setReplyText(prev => ({ ...prev, [id]: '' }));
         } catch (err) {
-            alert('Error sending reply');
+            toast.error('Error sending reply');
         } finally {
             setUpdating(prev => ({ ...prev, [id]: false }));
         }
@@ -131,6 +148,40 @@ const AdminSupport = () => {
                 {/* ============= TICKETS TAB ============= */}
                 {activeTab === 'tickets' && (
                     <>
+                        {/* Search Bar */}
+                        <div style={{ marginBottom: '16px' }}>
+                            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
+                                    <FiSearch size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
+                                    <input
+                                        type="text"
+                                        value={searchInput}
+                                        onChange={e => setSearchInput(e.target.value)}
+                                        placeholder="Search by subject, customer name, or email..."
+                                        className="rpt-input"
+                                        style={{ paddingLeft: '36px', width: '100%', boxSizing: 'border-box' }}
+                                    />
+                                </div>
+                                <button type="submit" className="rpt-btn rpt-btn-primary" style={{ padding: '9px 18px' }}>
+                                    <FiSearch size={14} /> Search
+                                </button>
+                                {searchQuery && (
+                                    <button type="button" onClick={clearSearch} className="rpt-btn" style={{
+                                        padding: '9px 18px', background: '#F3F4F6', color: '#6B7280',
+                                        border: '1px solid #E5E7EB', borderRadius: '8px', cursor: 'pointer', fontSize: '13px',
+                                    }}>
+                                        ✕ Clear
+                                    </button>
+                                )}
+                            </form>
+                            {searchQuery && (
+                                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '8px' }}>
+                                    Showing results for "{searchQuery}" — {filteredTickets.length} ticket(s) found
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Status Filter Tabs */}
                         <div className="admin-tabs" style={{ marginBottom: '16px' }}>
                             {['All', 'Open', 'In Progress', 'Resolved', 'Closed'].map(s => (
                                 <button key={s} onClick={() => setFilter(s)}
@@ -154,6 +205,9 @@ const AdminSupport = () => {
                                     const isOpen = expandedId === ticket._id;
                                     const pCfg = priorityConfig[ticket.priority] || priorityConfig.Medium;
                                     const sCfg = statusConfig[ticket.status] || statusConfig.Open;
+                                    const allReplies = ticket.replies || [];
+                                    const hasLegacyReply = ticket.adminReply && allReplies.length === 0;
+
                                     return (
                                         <div key={ticket._id} className="drb-card" style={{ padding: 0 }}>
                                             <div className="support-header" onClick={() => setExpandedId(isOpen ? null : ticket._id)}>
@@ -161,6 +215,7 @@ const AdminSupport = () => {
                                                     <h4 className="support-subject">{ticket.subject}</h4>
                                                     <p className="support-meta">
                                                         {ticket.user?.name || '—'} ({ticket.user?.email}) · {formatDate(ticket.createdAt)}
+                                                        {allReplies.length > 0 && ` · ${allReplies.length} replies`}
                                                     </p>
                                                 </div>
                                                 <span className="drb-status-pill" style={{ background: pCfg.bg, color: pCfg.color }}>{ticket.priority}</span>
@@ -170,23 +225,57 @@ const AdminSupport = () => {
 
                                             {isOpen && (
                                                 <div className="support-body">
-                                                    <div className="support-section">
-                                                        <label>Customer Message</label>
-                                                        <div className="support-message-box">{ticket.message}</div>
+                                                    {/* Original Customer Message */}
+                                                    <div style={{
+                                                        background: '#F0F4FF', borderRadius: '10px', padding: '14px 16px',
+                                                        marginBottom: '12px', borderLeft: '3px solid #3B82F6',
+                                                    }}>
+                                                        <span style={{ fontSize: '11px', fontWeight: 600, color: '#3B82F6', textTransform: 'uppercase' }}>
+                                                            👤 {ticket.user?.name || 'Customer'} · {formatDate(ticket.createdAt)}
+                                                        </span>
+                                                        <p style={{ fontSize: '14px', color: '#1F2937', marginTop: '6px', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
+                                                            {ticket.message}
+                                                        </p>
                                                     </div>
-                                                    {ticket.adminReply && (
-                                                        <div className="support-section">
-                                                            <label>Your Reply</label>
-                                                            <div className="support-reply-box">
+
+                                                    {/* Legacy admin reply (for old tickets) */}
+                                                    {hasLegacyReply && (
+                                                        <div style={{
+                                                            background: '#F0FFF4', borderRadius: '10px', padding: '14px 16px',
+                                                            marginBottom: '12px', borderLeft: '3px solid #10B981',
+                                                        }}>
+                                                            <span style={{ fontSize: '11px', fontWeight: 600, color: '#10B981', textTransform: 'uppercase' }}>
+                                                                🛡️ Admin · {ticket.repliedAt ? formatDate(ticket.repliedAt) : ''}
+                                                            </span>
+                                                            <p style={{ fontSize: '14px', color: '#1F2937', marginTop: '6px', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
                                                                 {ticket.adminReply}
-                                                                {ticket.repliedAt && (
-                                                                    <span className="support-reply-time">Replied {formatDate(ticket.repliedAt)}</span>
-                                                                )}
-                                                            </div>
+                                                            </p>
                                                         </div>
                                                     )}
-                                                    <div className="support-section">
-                                                        <label>Reply to Customer</label>
+
+                                                    {/* Threaded Replies */}
+                                                    {allReplies.map((reply, i) => (
+                                                        <div key={i} style={{
+                                                            background: reply.sender === 'admin' ? '#F0FFF4' : '#FFF8F0',
+                                                            borderRadius: '10px', padding: '14px 16px',
+                                                            marginBottom: '10px',
+                                                            borderLeft: `3px solid ${reply.sender === 'admin' ? '#10B981' : '#F59E0B'}`,
+                                                        }}>
+                                                            <span style={{
+                                                                fontSize: '11px', fontWeight: 600, textTransform: 'uppercase',
+                                                                color: reply.sender === 'admin' ? '#10B981' : '#F59E0B',
+                                                            }}>
+                                                                {reply.sender === 'admin' ? '🛡️ Admin' : `👤 ${ticket.user?.name || 'Customer'}`} · {formatDate(reply.createdAt)}
+                                                            </span>
+                                                            <p style={{ fontSize: '14px', color: '#1F2937', marginTop: '6px', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
+                                                                {reply.message}
+                                                            </p>
+                                                        </div>
+                                                    ))}
+
+                                                    {/* Admin Reply Input + Status */}
+                                                    <div className="support-section" style={{ marginTop: '12px' }}>
+                                                        <label style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', display: 'block' }}>Reply to Customer</label>
                                                         <textarea
                                                             value={replyText[ticket._id] || ''}
                                                             onChange={e => setReplyText(prev => ({ ...prev, [ticket._id]: e.target.value }))}
@@ -200,14 +289,12 @@ const AdminSupport = () => {
                                                                 disabled={updating[ticket._id]}>
                                                                 <FiSend size={14} /> {updating[ticket._id] ? 'Sending...' : 'Send Reply'}
                                                             </button>
-                                                            <select value={ticket.status}
-                                                                onChange={e => handleStatusUpdate(ticket._id, e.target.value)}
-                                                                className="rpt-input" disabled={updating[ticket._id]}>
-                                                                <option value="Open">Open</option>
-                                                                <option value="In Progress">In Progress</option>
-                                                                <option value="Resolved">Resolved</option>
-                                                                <option value="Closed">Closed</option>
-                                                            </select>
+                                                            <CustomDropdown
+                                                                value={ticket.status}
+                                                                onChange={(val) => handleStatusUpdate(ticket._id, val)}
+                                                                options={['Open', 'In Progress', 'Resolved', 'Closed']}
+                                                                disabled={updating[ticket._id]}
+                                                            />
                                                         </div>
                                                     </div>
                                                 </div>

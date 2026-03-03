@@ -56,10 +56,10 @@ const Header = () => {
 
                     {/* Header Actions */}
                     <div className="header-actions">
-                        <Link to="/wishlist" className="header-icon-btn" title="Wishlist">
-                            <FiHeart size={20} />
+                        <Link to="/wishlist" className="header-icon-btn" title="Wishlist" style={{ position: 'relative' }}>
+                            <FiHeart size={20} style={wishlist.length > 0 ? { fill: '#e74c3c', color: '#e74c3c' } : {}} />
                             {wishlist.length > 0 && (
-                                <span className="cart-badge" style={{ background: 'var(--accent-coral)' }}>{wishlist.length}</span>
+                                <span className="cart-badge" style={{ background: '#e74c3c', boxShadow: '0 0 8px rgba(231, 76, 60, 0.6)' }}>{wishlist.length}</span>
                             )}
                         </Link>
 

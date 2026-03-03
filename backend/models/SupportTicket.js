@@ -1,5 +1,21 @@
 import mongoose from 'mongoose';
 
+const replySchema = new mongoose.Schema({
+    sender: {
+        type: String,
+        enum: ['customer', 'admin'],
+        required: true,
+    },
+    message: {
+        type: String,
+        required: true,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+});
+
 const supportTicketSchema = new mongoose.Schema(
     {
         user: {
@@ -26,6 +42,7 @@ const supportTicketSchema = new mongoose.Schema(
             enum: ['Low', 'Medium', 'High'],
             default: 'Medium',
         },
+        // Legacy single reply (kept for backward compat)
         adminReply: {
             type: String,
             default: '',
@@ -33,6 +50,8 @@ const supportTicketSchema = new mongoose.Schema(
         repliedAt: {
             type: Date,
         },
+        // Multi-reply thread
+        replies: [replySchema],
     },
     {
         timestamps: true,

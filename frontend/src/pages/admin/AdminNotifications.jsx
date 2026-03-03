@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import toast from '../../utils/toast';
 import { FiBell, FiPlus, FiTrash2, FiX, FiInfo, FiTag, FiAlertTriangle, FiRefreshCw } from 'react-icons/fi';
 import api from '../../utils/api';
 import AdminLayout from '../../components/layout/AdminLayout';
+import CustomDropdown from '../../components/common/CustomDropdown';
+import { useConfirm } from '../../components/common/ConfirmDialog';
 import './admin.css';
 
 const typeConfig = {
@@ -17,6 +20,7 @@ const AdminNotifications = () => {
     const [showModal, setShowModal] = useState(false);
     const [form, setForm] = useState({ title: '', message: '', type: 'info', targetAudience: 'all' });
     const [saving, setSaving] = useState(false);
+    const confirm = useConfirm();
 
     useEffect(() => { fetchNotifications(); }, []);
 
@@ -33,7 +37,7 @@ const AdminNotifications = () => {
     };
 
     const handleCreate = async () => {
-        if (!form.title.trim() || !form.message.trim()) return alert('Title and message are required');
+        if (!form.title.trim() || !form.message.trim()) return toast.warn('Title and message are required');
         try {
             setSaving(true);
             await api.post('/admin/notifications', form);
@@ -41,19 +45,20 @@ const AdminNotifications = () => {
             setForm({ title: '', message: '', type: 'info', targetAudience: 'all' });
             fetchNotifications();
         } catch (err) {
-            alert(err.response?.data?.message || 'Error creating notification');
+            toast.error(err.response?.data?.message || 'Error creating notification');
         } finally {
             setSaving(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Delete this notification?')) return;
+        const ok = await confirm('Do you really want to delete this notification? This action cannot be undone.', { title: 'Delete Notification', confirmText: 'Delete' });
+        if (!ok) return;
         try {
             await api.delete(`/admin/notifications/${id}`);
             fetchNotifications();
         } catch (err) {
-            alert('Error deleting notification');
+            toast.error('Error deleting notification');
         }
     };
 
@@ -147,21 +152,27 @@ const AdminNotifications = () => {
                             <div style={{ display: 'flex', gap: '12px' }}>
                                 <div className="admin-form-group" style={{ flex: 1 }}>
                                     <label>Type</label>
-                                    <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}
-                                        className="rpt-input" style={{ width: '100%' }}>
-                                        <option value="info">Info</option>
-                                        <option value="offer">Offer</option>
-                                        <option value="alert">Alert</option>
-                                        <option value="update">Update</option>
-                                    </select>
+                                    <CustomDropdown
+                                        value={form.type}
+                                        onChange={(val) => setForm({ ...form, type: val })}
+                                        options={[
+                                            { value: 'info', label: 'Info' },
+                                            { value: 'offer', label: 'Offer' },
+                                            { value: 'alert', label: 'Alert' },
+                                            { value: 'update', label: 'Update' },
+                                        ]}
+                                    />
                                 </div>
                                 <div className="admin-form-group" style={{ flex: 1 }}>
                                     <label>Target Audience</label>
-                                    <select value={form.targetAudience} onChange={e => setForm({ ...form, targetAudience: e.target.value })}
-                                        className="rpt-input" style={{ width: '100%' }}>
-                                        <option value="all">All Users</option>
-                                        <option value="customers">Customers Only</option>
-                                    </select>
+                                    <CustomDropdown
+                                        value={form.targetAudience}
+                                        onChange={(val) => setForm({ ...form, targetAudience: val })}
+                                        options={[
+                                            { value: 'all', label: 'All Users' },
+                                            { value: 'customers', label: 'Customers Only' },
+                                        ]}
+                                    />
                                 </div>
                             </div>
                         </div>

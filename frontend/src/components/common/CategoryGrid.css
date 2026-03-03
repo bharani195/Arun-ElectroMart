@@ -1,13 +1,13 @@
 /* Category Grid Styles */
 .category-section {
-    padding: var(--space-16) 0;
+    padding: var(--space-8) 0;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(238, 242, 247, 0.8) 100%);
     backdrop-filter: blur(10px);
 }
 
 .section-header {
     text-align: center;
-    margin-bottom: var(--space-12);
+    margin-bottom: var(--space-6);
 }
 
 .section-title {

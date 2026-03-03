@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiHeart, FiShare2, FiMinus, FiPlus, FiArrowLeft, FiCheck, FiTruck, FiShield, FiRefreshCw, FiStar } from 'react-icons/fi';
+import {
+    FiShoppingCart, FiHeart, FiMinus, FiPlus, FiStar, FiArrowLeft,
+    FiCheckCircle, FiTruck, FiShield, FiRefreshCcw, FiCheck
+} from 'react-icons/fi';
+import toast from '../utils/toast';
 import api from '../utils/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -65,9 +69,9 @@ const ProductDetail = () => {
         try {
             setAddingToCart(true);
             await addToCart(product._id, quantity);
-            alert('Added to cart successfully!');
+            toast.success('Added to cart successfully!');
         } catch (error) {
-            alert('Error adding to cart: ' + (error.response?.data?.message || error.message));
+            toast.error('Error adding to cart: ' + (error.response?.data?.message || error.message));
         } finally {
             setAddingToCart(false);
         }
@@ -84,7 +88,7 @@ const ProductDetail = () => {
             await addToCart(product._id, quantity);
             navigate('/checkout');
         } catch (error) {
-            alert('Error: ' + (error.response?.data?.message || error.message));
+            toast.error('Error: ' + (error.response?.data?.message || error.message));
         } finally {
             setAddingToCart(false);
         }
@@ -92,7 +96,7 @@ const ProductDetail = () => {
 
     if (loading) {
         return (
-            <div style={{ marginTop: '140px', minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div style={{ minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <div className="loading-spinner"></div>
             </div>
         );
@@ -100,7 +104,7 @@ const ProductDetail = () => {
 
     if (!product) {
         return (
-            <div style={{ marginTop: '140px', minHeight: '60vh' }}>
+            <div style={{ minHeight: '60vh' }}>
                 <div className="container">
                     <div className="glass-card" style={{ textAlign: 'center', padding: 'var(--space-16)' }}>
                         <h2>Product Not Found</h2>
@@ -121,7 +125,7 @@ const ProductDetail = () => {
         : 0;
 
     return (
-        <div style={{ marginTop: '140px', minHeight: '60vh' }}>
+        <div style={{ minHeight: '60vh' }}>
             <div className="container">
                 {/* Breadcrumb */}
                 <div style={{ marginBottom: 'var(--space-6)' }}>
@@ -450,30 +454,31 @@ const ProductDetail = () => {
                             </button>
                             <button
                                 onClick={handleWishlistToggle}
-                                className="btn"
                                 style={{
-                                    width: '56px',
+                                    width: '52px',
+                                    height: '52px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     background: isWishlisted
-                                        ? 'linear-gradient(135deg, #100f0fff 0%, #0d0c0cff 100%)'
-                                        : 'linear-gradient(135deg, #080808ff 0%, #120f10ff 100%)',
-                                    border: 'none',
-                                    color: 'white',
-                                    boxShadow: isWishlisted
-                                        ? '0 0 0 3px rgba(255, 0, 110, 0.3), 0 6px 20px rgba(255, 0, 110, 0.5)'
-                                        : '0 6px 20px rgba(255, 0, 110, 0.4)',
+                                        ? 'rgba(231, 76, 60, 0.1)'
+                                        : 'var(--bg-card)',
+                                    border: isWishlisted
+                                        ? '2px solid #e74c3c'
+                                        : '2px solid var(--border-light)',
+                                    borderRadius: 'var(--radius-lg)',
+                                    cursor: 'pointer',
                                     transition: 'all 0.3s ease',
+                                    flexShrink: 0,
+                                    padding: 0,
                                 }}
                                 title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
                             >
                                 <FiHeart
-                                    size={24}
-                                    fill={isWishlisted ? "black" : "none"}
-                                    stroke="black"
+                                    size={22}
+                                    fill={isWishlisted ? "#e74c3c" : "none"}
+                                    color={isWishlisted ? "#e74c3c" : "#8b7355"}
                                     strokeWidth={2}
-                                    style={{ color: 'black' }}
                                 />
                             </button>
                         </div>
@@ -528,7 +533,7 @@ const ProductDetail = () => {
                                         justifyContent: 'center',
                                         color: 'var(--accent-coral)'
                                     }}>
-                                        <FiRefreshCw size={20} />
+                                        <FiRefreshCcw size={20} />
                                     </div>
                                     <div>
                                         <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>Easy Returns</p>

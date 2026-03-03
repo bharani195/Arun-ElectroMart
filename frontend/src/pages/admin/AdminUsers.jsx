@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import toast from '../../utils/toast';
 import { FiSearch, FiTrash2, FiMail, FiPhone, FiCalendar, FiCheck, FiUsers } from 'react-icons/fi';
 import api from '../../utils/api';
 import AdminLayout from '../../components/layout/AdminLayout';
+import { useConfirm } from '../../components/common/ConfirmDialog';
 
 const AdminUsers = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const confirm = useConfirm();
 
     useEffect(() => { fetchUsers(); }, []);
 
@@ -16,20 +19,21 @@ const AdminUsers = () => {
             setUsers(data);
         } catch (error) {
             console.error('Error fetching users:', error);
-            alert('Failed to load users');
+            toast.error('Failed to load users');
         } finally {
             setLoading(false);
         }
     };
 
     const handleDeleteUser = async (userId) => {
-        if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+        const ok = await confirm('Do you really want to delete this user? This action cannot be undone.', { title: 'Delete User', confirmText: 'Delete' });
+        if (ok) {
             try {
                 await api.delete(`/admin/users/${userId}`);
                 setUsers(users.filter(u => u._id !== userId));
             } catch (error) {
                 console.error('Error deleting user:', error);
-                alert(error.response?.data?.message || 'Failed to delete user');
+                toast.error(error.response?.data?.message || 'Failed to delete user');
             }
         }
     };

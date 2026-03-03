@@ -1,26 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
     FiCpu, FiZap, FiTool, FiHome, FiMonitor, FiWifi,
     FiBattery, FiSun, FiDroplet, FiWind, FiLock, FiCamera
 } from 'react-icons/fi';
+import api from '../../utils/api';
 import './CategoryGrid.css';
 
+const iconMap = {
+    'wiring': <FiZap />,
+    'cables': <FiZap />,
+    'smart': <FiCpu />,
+    'tools': <FiTool />,
+    'automation': <FiHome />,
+    'lighting': <FiSun />,
+    'security': <FiLock />,
+    'networking': <FiWifi />,
+    'power': <FiBattery />,
+    'cctv': <FiCamera />,
+    'camera': <FiCamera />,
+    'climate': <FiWind />,
+    'plumbing': <FiDroplet />,
+    'display': <FiMonitor />,
+    'fan': <FiWind />,
+    'switch': <FiCpu />,
+    'wire': <FiZap />,
+    'pump': <FiDroplet />,
+    'electronic': <FiCpu />,
+};
+
+const colorPalette = [
+    '#ff9900', '#146eb4', '#067d62', '#c7511f', '#f08804', '#8b5cf6',
+    '#06b6d4', '#ec4899', '#10b981', '#3b82f6', '#14b8a6', '#f59e0b',
+];
+
+const getIconForCategory = (name) => {
+    const lowerName = name.toLowerCase();
+    for (const [key, icon] of Object.entries(iconMap)) {
+        if (lowerName.includes(key)) return icon;
+    }
+    return <FiCpu />;
+};
+
 const CategoryGrid = () => {
-    const categories = [
-        { id: 1, name: 'Wiring & Cables', icon: <FiZap />, link: '/products?category=wiring', color: '#ff9900' },
-        { id: 2, name: 'Smart Devices', icon: <FiCpu />, link: '/products?category=smart', color: '#146eb4' },
-        { id: 3, name: 'Tools & Equipment', icon: <FiTool />, link: '/products?category=tools', color: '#067d62' },
-        { id: 4, name: 'Home Automation', icon: <FiHome />, link: '/products?category=automation', color: '#c7511f' },
-        { id: 5, name: 'Lighting', icon: <FiSun />, link: '/products?category=lighting', color: '#f08804' },
-        { id: 6, name: 'Security Systems', icon: <FiLock />, link: '/products?category=security', color: '#8b5cf6' },
-        { id: 7, name: 'Networking', icon: <FiWifi />, link: '/products?category=networking', color: '#06b6d4' },
-        { id: 8, name: 'Power Solutions', icon: <FiBattery />, link: '/products?category=power', color: '#ec4899' },
-        { id: 9, name: 'CCTV & Cameras', icon: <FiCamera />, link: '/products?category=cctv', color: '#10b981' },
-        { id: 10, name: 'Climate Control', icon: <FiWind />, link: '/products?category=climate', color: '#3b82f6' },
-        { id: 11, name: 'Plumbing', icon: <FiDroplet />, link: '/products?category=plumbing', color: '#14b8a6' },
-        { id: 12, name: 'Displays', icon: <FiMonitor />, link: '/products?category=displays', color: '#f59e0b' },
-    ];
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const { data } = await api.get('/categories');
+                setCategories(data);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+        fetchCategories();
+    }, []);
 
     return (
         <section className="category-section">
@@ -33,20 +68,21 @@ const CategoryGrid = () => {
                 </div>
 
                 <div className="category-grid">
-                    {categories.map((category, index) => (
+                    {categories.map((cat, index) => (
                         <Link
-                            key={category.id}
-                            to={category.link}
+                            key={cat._id}
+                            to={`/products?category=${encodeURIComponent(cat.name)}`}
                             className="category-card animate-fade-in-up"
+                            onClick={() => window.scrollTo(0, 0)}
                             style={{
                                 animationDelay: `${index * 0.05}s`,
-                                '--category-color': category.color
+                                '--category-color': colorPalette[index % colorPalette.length]
                             }}
                         >
-                            <div className="category-icon" style={{ background: category.color }}>
-                                {category.icon}
+                            <div className="category-icon" style={{ background: colorPalette[index % colorPalette.length] }}>
+                                {getIconForCategory(cat.name)}
                             </div>
-                            <h3 className="category-name">{category.name}</h3>
+                            <h3 className="category-name">{cat.name}</h3>
                             <div className="category-arrow">→</div>
                         </Link>
                     ))}

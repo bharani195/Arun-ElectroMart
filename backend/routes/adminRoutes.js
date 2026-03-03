@@ -65,7 +65,24 @@ router.delete('/notifications/:id', async (req, res) => {
 // --- Support Tickets ---
 router.get('/support', async (req, res) => {
     try {
-        const tickets = await SupportTicket.find().sort({ createdAt: -1 }).populate('user', 'name email');
+        const { search } = req.query;
+        let query = {};
+        if (search) {
+            query = {
+                $or: [
+                    { subject: { $regex: search, $options: 'i' } },
+                ]
+            };
+        }
+        let tickets = await SupportTicket.find(query).sort({ createdAt: -1 }).populate('user', 'name email');
+        // Also filter by customer name if search provided
+        if (search) {
+            tickets = tickets.filter(t =>
+                t.subject.toLowerCase().includes(search.toLowerCase()) ||
+                t.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
+                t.user?.email?.toLowerCase().includes(search.toLowerCase())
+            );
+        }
         res.json(tickets);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -75,14 +92,23 @@ router.get('/support', async (req, res) => {
 router.put('/support/:id', async (req, res) => {
     try {
         const { status, adminReply } = req.body;
-        const update = {};
-        if (status) update.status = status;
-        if (adminReply !== undefined) {
-            update.adminReply = adminReply;
-            update.repliedAt = new Date();
+        const ticket = await SupportTicket.findById(req.params.id);
+        if (!ticket) return res.status(404).json({ message: 'Ticket not found' });
+
+        if (status) ticket.status = status;
+        if (adminReply?.trim()) {
+            // Push to replies array
+            ticket.replies.push({ sender: 'admin', message: adminReply.trim() });
+            // Also update legacy field
+            ticket.adminReply = adminReply.trim();
+            ticket.repliedAt = new Date();
+            // Auto-set status to In Progress if still Open
+            if (ticket.status === 'Open') ticket.status = 'In Progress';
         }
-        const ticket = await SupportTicket.findByIdAndUpdate(req.params.id, update, { new: true }).populate('user', 'name email');
-        res.json(ticket);
+        await ticket.save();
+
+        const updated = await SupportTicket.findById(ticket._id).populate('user', 'name email');
+        res.json(updated);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

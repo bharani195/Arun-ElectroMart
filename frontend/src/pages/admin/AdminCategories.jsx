@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiGrid, FiX } from 'react-icons/fi';
+import toast from '../../utils/toast';
+import { FiPlus, FiEdit2, FiTrash2, FiX, FiGrid, FiPackage, FiSearch } from 'react-icons/fi';
 import api from '../../utils/api';
 import AdminLayout from '../../components/layout/AdminLayout';
+import { useConfirm } from '../../components/common/ConfirmDialog';
 import './admin.css';
 
 const AdminCategories = () => {
@@ -11,6 +13,8 @@ const AdminCategories = () => {
     const [editing, setEditing] = useState(null);
     const [form, setForm] = useState({ name: '', description: '' });
     const [saving, setSaving] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const confirm = useConfirm();
 
     useEffect(() => { fetchCategories(); }, []);
 
@@ -39,32 +43,40 @@ const AdminCategories = () => {
     };
 
     const handleSave = async () => {
-        if (!form.name.trim()) return alert('Category name is required');
+        if (!form.name.trim()) return toast.warn('Category name is required');
         try {
             setSaving(true);
             if (editing) {
                 await api.put(`/categories/${editing._id}`, form);
+                toast.success('Category updated successfully!');
             } else {
                 await api.post('/categories', form);
+                toast.success('Category created successfully!');
             }
             setShowModal(false);
             fetchCategories();
         } catch (err) {
-            alert(err.response?.data?.message || 'Error saving category');
+            toast.error(err.response?.data?.message || 'Error saving category');
         } finally {
             setSaving(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Delete this category? Products in this category may lose their category.')) return;
+        const ok = await confirm('Do you really want to delete this category? Products in this category may lose their category.', { title: 'Delete Category', confirmText: 'Delete' });
+        if (!ok) return;
         try {
             await api.delete(`/categories/${id}`);
+            toast.success('Category deleted!');
             fetchCategories();
         } catch (err) {
-            alert(err.response?.data?.message || 'Error deleting category');
+            toast.error(err.response?.data?.message || 'Error deleting category');
         }
     };
+
+    const filteredCategories = categories.filter(cat =>
+        cat.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     if (loading) {
         return (
@@ -76,108 +88,109 @@ const AdminCategories = () => {
 
     return (
         <AdminLayout activePage="categories">
-            <div className="drb-dashboard">
-                <div className="drb-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="cat-page">
+                {/* Header */}
+                <div className="cat-header">
                     <div>
-                        <h1 className="drb-title">Categories</h1>
-                        <p className="drb-subtitle">Manage product categories</p>
+                        <h1 className="cat-title">Categories</h1>
+                        <p className="cat-subtitle">{categories.length} categories</p>
                     </div>
-                    <button className="rpt-btn rpt-btn-primary" onClick={openAdd}>
+                    <button className="cat-add-btn" onClick={openAdd}>
                         <FiPlus size={16} /> Add Category
                     </button>
                 </div>
 
-                <div className="drb-card">
-                    {categories.length === 0 ? (
-                        <div className="admin-empty-state">
-                            <FiGrid size={48} />
-                            <h2>No Categories</h2>
-                            <p>Create your first product category</p>
-                        </div>
-                    ) : (
-                        <table className="drb-table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Name</th>
-                                    <th>Slug</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {categories.map((cat, i) => (
-                                    <tr key={cat._id}>
-                                        <td style={{ color: '#9CA3AF' }}>{i + 1}</td>
-                                        <td className="drb-table-bold">{cat.name}</td>
-                                        <td className="drb-table-mono" style={{ fontSize: '11px' }}>{cat.slug}</td>
-                                        <td className="drb-table-muted">{cat.description || '—'}</td>
-                                        <td>
-                                            <span className="drb-status-pill" style={{
-                                                background: cat.isActive ? '#D1FAE5' : '#FEE2E2',
-                                                color: cat.isActive ? '#065F46' : '#991B1B'
-                                            }}>
-                                                {cat.isActive ? 'Active' : 'Inactive'}
-                                            </span>
-                                        </td>
-                                        <td className="drb-table-muted">
-                                            {new Date(cat.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', gap: '6px' }}>
-                                                <button className="cat-action-btn edit" onClick={() => openEdit(cat)} title="Edit">
-                                                    <FiEdit2 size={14} />
-                                                </button>
-                                                <button className="cat-action-btn delete" onClick={() => handleDelete(cat._id)} title="Delete">
-                                                    <FiTrash2 size={14} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
+                {/* Search */}
+                {categories.length > 0 && (
+                    <div className="cat-search-bar">
+                        <FiSearch size={15} className="cat-search-icon" />
+                        <input
+                            type="text"
+                            placeholder="Search categories..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="cat-search-input"
+                        />
+                    </div>
+                )}
+
+                {/* List */}
+                {filteredCategories.length === 0 ? (
+                    <div className="cat-empty">
+                        <FiGrid size={36} />
+                        <h3>{searchQuery ? 'No results' : 'No categories yet'}</h3>
+                        <p>{searchQuery ? 'Try a different search' : 'Create your first category'}</p>
+                    </div>
+                ) : (
+                    <div className="cat-list">
+                        {filteredCategories.map((cat, i) => (
+                            <div key={cat._id} className="cat-row">
+                                <div className="cat-row-icon">
+                                    <FiPackage size={18} />
+                                </div>
+                                <div className="cat-row-info">
+                                    <h4 className="cat-row-name">{cat.name}</h4>
+                                    <p className="cat-row-desc">{cat.description || 'No description'}</p>
+                                </div>
+                                <span className="cat-row-slug">{cat.slug}</span>
+                                <span className="cat-row-status" data-active={cat.isActive}>
+                                    {cat.isActive ? 'Active' : 'Inactive'}
+                                </span>
+                                <span className="cat-row-date">
+                                    {new Date(cat.createdAt).toLocaleDateString('en-IN', {
+                                        day: 'numeric', month: 'short', year: 'numeric'
+                                    })}
+                                </span>
+                                <div className="cat-row-actions">
+                                    <button className="cat-icon-btn" onClick={() => openEdit(cat)} title="Edit">
+                                        <FiEdit2 size={14} />
+                                    </button>
+                                    <button className="cat-icon-btn cat-icon-btn-danger" onClick={() => handleDelete(cat._id)} title="Delete">
+                                        <FiTrash2 size={14} />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Modal */}
             {showModal && (
-                <div className="admin-modal-overlay" onClick={() => setShowModal(false)}>
-                    <div className="admin-modal" onClick={e => e.stopPropagation()}>
-                        <div className="admin-modal-head">
-                            <h3>{editing ? 'Edit Category' : 'Add Category'}</h3>
-                            <button className="admin-modal-close" onClick={() => setShowModal(false)}><FiX size={18} /></button>
+                <div className="cat-modal-overlay" onClick={() => setShowModal(false)}>
+                    <div className="cat-modal" onClick={e => e.stopPropagation()}>
+                        <div className="cat-modal-header">
+                            <h3 className="cat-modal-title">{editing ? 'Edit Category' : 'New Category'}</h3>
+                            <button className="cat-modal-close" onClick={() => setShowModal(false)}>
+                                <FiX size={18} />
+                            </button>
                         </div>
-                        <div className="admin-modal-body">
-                            <div className="admin-form-group">
-                                <label>Category Name *</label>
+                        <div className="cat-modal-body">
+                            <div className="cat-form-group">
+                                <label className="cat-form-label">Name *</label>
                                 <input
                                     type="text"
                                     value={form.name}
                                     onChange={e => setForm({ ...form, name: e.target.value })}
                                     placeholder="e.g. Electronics"
-                                    className="rpt-input"
-                                    style={{ width: '100%' }}
+                                    className="cat-form-input"
+                                    autoFocus
                                 />
                             </div>
-                            <div className="admin-form-group">
-                                <label>Description</label>
+                            <div className="cat-form-group">
+                                <label className="cat-form-label">Description</label>
                                 <textarea
                                     value={form.description}
                                     onChange={e => setForm({ ...form, description: e.target.value })}
                                     placeholder="Optional description"
-                                    className="rpt-input"
+                                    className="cat-form-input cat-form-textarea"
                                     rows={3}
-                                    style={{ width: '100%', resize: 'vertical' }}
                                 />
                             </div>
                         </div>
-                        <div className="admin-modal-footer">
-                            <button className="rpt-btn" style={{ background: '#F3F4F6', color: '#374151' }} onClick={() => setShowModal(false)}>Cancel</button>
-                            <button className="rpt-btn rpt-btn-primary" onClick={handleSave} disabled={saving}>
+                        <div className="cat-modal-footer">
+                            <button className="cat-modal-btn cat-modal-btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+                            <button className="cat-modal-btn cat-modal-btn-save" onClick={handleSave} disabled={saving}>
                                 {saving ? 'Saving...' : (editing ? 'Update' : 'Create')}
                             </button>
                         </div>

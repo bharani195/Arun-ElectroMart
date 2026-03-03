@@ -18,10 +18,10 @@ const Footer = () => {
                             Quality, innovation, and reliability in every product we deliver.
                         </p>
                         <div className="footer-socials">
-                            <a href="#" aria-label="Facebook"><FiFacebook size={18} /></a>
-                            <a href="#" aria-label="Twitter"><FiTwitter size={18} /></a>
-                            <a href="#" aria-label="Instagram"><FiInstagram size={18} /></a>
-                            <a href="#" aria-label="LinkedIn"><FiLinkedin size={18} /></a>
+                            <a href="#" onClick={e => e.preventDefault()} aria-label="Facebook"><FiFacebook size={18} /></a>
+                            <a href="#" onClick={e => e.preventDefault()} aria-label="Twitter"><FiTwitter size={18} /></a>
+                            <a href="#" onClick={e => e.preventDefault()} aria-label="Instagram"><FiInstagram size={18} /></a>
+                            <a href="#" onClick={e => e.preventDefault()} aria-label="LinkedIn"><FiLinkedin size={18} /></a>
                         </div>
                     </div>
 
@@ -33,6 +33,7 @@ const Footer = () => {
                             <li><Link to="/products?featured=true">Featured</Link></li>
                             <li><Link to="/products?sort=newest">New Arrivals</Link></li>
                             <li><Link to="/products?sale=true">Best Deals</Link></li>
+                            <li><Link to="/support">Help & Support</Link></li>
                         </ul>
                     </div>
 

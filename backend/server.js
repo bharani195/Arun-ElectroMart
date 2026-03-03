@@ -15,6 +15,7 @@ import orderRoutes from './routes/order.routes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import wishlistRoutes from './routes/wishlist.routes.js';
 import userRoutes from './routes/user.routes.js';
+import paymentRoutes from './routes/payment.routes.js';
 
 // Load env vars
 dotenv.config();
@@ -47,6 +48,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // Chatbot log endpoint (public — works for logged-in and guest users)
 app.post('/api/chatlog', async (req, res) => {

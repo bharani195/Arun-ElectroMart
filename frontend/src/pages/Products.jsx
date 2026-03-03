@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { FiSearch, FiFilter, FiGrid, FiList, FiShoppingCart, FiHeart, FiStar, FiAward, FiTag } from 'react-icons/fi';
+import { FiSearch, FiChevronLeft, FiChevronRight, FiShoppingCart, FiHeart, FiStar, FiFilter, FiX } from 'react-icons/fi';
+import toast from '../utils/toast';
 import api from '../utils/api';
 import { useCart } from '../context/CartContext';
+import CustomDropdown from '../components/common/CustomDropdown';
 
 const Products = () => {
     const [searchParams] = useSearchParams();
@@ -13,16 +15,22 @@ const Products = () => {
     const { addToCart } = useCart();
 
     const filter = searchParams.get('filter');
+    const category = searchParams.get('category');
 
     useEffect(() => {
         fetchProducts();
-    }, [filter, sortBy]);
+    }, [filter, category, sortBy]);
 
     const fetchProducts = async () => {
         try {
             setLoading(true);
             let endpoint = '/products';
             const params = new URLSearchParams();
+
+            // Handle category filter
+            if (category) {
+                params.append('category', category);
+            }
 
             // Handle different filters
             if (filter === 'bestseller') {
@@ -53,6 +61,23 @@ const Products = () => {
     };
 
     const getPageTitle = () => {
+        if (category) {
+            const categoryNames = {
+                wiring: '⚡ Wiring & Cables',
+                smart: '🔌 Smart Devices',
+                tools: '🔧 Tools & Equipment',
+                automation: '🏠 Home Automation',
+                lighting: '💡 Lighting',
+                security: '🔒 Security Systems',
+                networking: '📡 Networking',
+                power: '🔋 Power Solutions',
+                cctv: '📷 CCTV & Cameras',
+                climate: '❄️ Climate Control',
+                plumbing: '🔧 Plumbing',
+                displays: '🖥️ Displays',
+            };
+            return categoryNames[category] || category;
+        }
         switch (filter) {
             case 'bestseller': return '🏆 Best Sellers';
             case 'lowcost': return '💰 Products at Low Cost';
@@ -64,14 +89,14 @@ const Products = () => {
     const handleAddToCart = async (product) => {
         try {
             await addToCart(product._id, 1);
-            alert('Added to cart!');
+            toast.success('Added to cart!');
         } catch (error) {
             console.error('Error adding to cart:', error);
         }
     };
 
     return (
-        <div className="products-page" style={{ marginTop: '140px', minHeight: '60vh' }}>
+        <div className="products-page" style={{ paddingTop: '20px', minHeight: '100vh' }}>
             <div className="container">
                 {/* Page Header */}
                 <div style={{ marginBottom: 'var(--space-8)' }}>
@@ -95,16 +120,15 @@ const Products = () => {
                     border: '1px solid var(--border-light)'
                 }}>
                     <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center' }}>
-                        <select
+                        <CustomDropdown
                             value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className="form-input"
-                            style={{ width: '180px' }}
-                        >
-                            <option value="newest">Newest First</option>
-                            <option value="price_low">Price: Low to High</option>
-                            <option value="price_high">Price: High to Low</option>
-                        </select>
+                            onChange={(val) => setSortBy(val)}
+                            options={[
+                                { value: 'newest', label: 'Newest First' },
+                                { value: 'price_low', label: 'Price: Low to High' },
+                                { value: 'price_high', label: 'Price: High to Low' },
+                            ]}
+                        />
                     </div>
                     <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
                         <button

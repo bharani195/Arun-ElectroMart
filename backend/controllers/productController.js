@@ -1,4 +1,5 @@
 import Product from '../models/Product.js';
+import Category from '../models/Category.js';
 import { logActivity } from '../controllers/adminController.js';
 
 // @desc    Get all products
@@ -12,7 +13,22 @@ export const getProducts = async (req, res) => {
         const query = { isActive: true };
 
         if (category) {
-            query.category = category;
+            // Check if it's a valid MongoDB ObjectId
+            const isObjectId = /^[0-9a-fA-F]{24}$/.test(category);
+            if (isObjectId) {
+                query.category = category;
+            } else {
+                // Search by category name (case-insensitive)
+                const matchingCategories = await Category.find({
+                    name: { $regex: category, $options: 'i' }
+                });
+                if (matchingCategories.length > 0) {
+                    query.category = { $in: matchingCategories.map(c => c._id) };
+                } else {
+                    // No matching category found, return empty
+                    query.category = null;
+                }
+            }
         }
 
         // Filter by product type flags
@@ -83,10 +99,25 @@ export const getProducts = async (req, res) => {
 // @access  Public
 export const getFeaturedProducts = async (req, res) => {
     try {
-        const products = await Product.find({ isFeatured: true, isActive: true })
+        const limit = 4;
+        let products = await Product.find({ isFeatured: true, isActive: true })
             .populate('category', 'name slug')
-            .limit(8)
+            .limit(limit)
             .sort({ createdAt: -1 });
+
+        // If not enough featured products, backfill with recent products
+        if (products.length < limit) {
+            const featuredIds = products.map(p => p._id);
+            const remaining = limit - products.length;
+            const extraProducts = await Product.find({
+                _id: { $nin: featuredIds },
+                isActive: true
+            })
+                .populate('category', 'name slug')
+                .limit(remaining)
+                .sort({ createdAt: -1 });
+            products = [...products, ...extraProducts];
+        }
 
         res.json(products);
     } catch (error) {

@@ -44,24 +44,7 @@ const Home = () => {
             {/* Category Grid */}
             <CategoryGrid />
 
-            {/* Features Section */}
-            <section className="section" style={{ paddingTop: 0 }}>
-                <div className="container">
-                    <div className="grid grid-4">
-                        {features.map((feature, index) => (
-                            <div key={index} className="feature-card">
-                                <div className="feature-icon">
-                                    {feature.icon}
-                                </div>
-                                <div className="feature-content">
-                                    <h4>{feature.title}</h4>
-                                    <p>{feature.desc}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
+
 
             {/* Featured Products Section */}
             <section className="section" style={{ background: 'linear-gradient(180deg, transparent 0%, rgba(102, 126, 234, 0.03) 100%)' }}>
@@ -137,22 +120,91 @@ const Home = () => {
                             </div>
                         </div>
                     ) : (
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                            gap: 'var(--space-6)',
-                            animation: 'fadeIn 0.5s ease-in'
-                        }}>
-                            {featuredProducts.map((product, index) => (
-                                <div
-                                    key={product._id}
-                                    style={{
-                                        animation: `slideUp 0.5s ease-out ${index * 0.1}s both`
+                        <div style={{ position: 'relative' }}>
+                            {/* Left Arrow */}
+                            {featuredProducts.length > 4 && (
+                                <button
+                                    onClick={() => {
+                                        const container = document.getElementById('trending-carousel');
+                                        if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
                                     }}
+                                    style={{
+                                        position: 'absolute',
+                                        left: '-20px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        zIndex: 10,
+                                        width: '44px',
+                                        height: '44px',
+                                        borderRadius: '50%',
+                                        background: 'var(--bg-card)',
+                                        border: '1px solid var(--border-light)',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '20px',
+                                        color: 'var(--text-primary)'
+                                    }}
+                                    aria-label="Scroll left"
                                 >
-                                    <ProductCard product={product} />
-                                </div>
-                            ))}
+                                    ‹
+                                </button>
+                            )}
+
+                            <div
+                                id="trending-carousel"
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(4, 1fr)',
+                                    gap: 'var(--space-6)',
+                                    animation: 'fadeIn 0.5s ease-in'
+                                }}
+                            >
+                                {featuredProducts.slice(0, 4).map((product, index) => (
+                                    <div
+                                        key={product._id}
+                                        style={{
+                                            animation: `slideUp 0.5s ease-out ${index * 0.1}s both`
+                                        }}
+                                    >
+                                        <ProductCard product={product} />
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Right Arrow */}
+                            {featuredProducts.length > 4 && (
+                                <button
+                                    onClick={() => {
+                                        const container = document.getElementById('trending-carousel');
+                                        if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
+                                    }}
+                                    style={{
+                                        position: 'absolute',
+                                        right: '-20px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        zIndex: 10,
+                                        width: '44px',
+                                        height: '44px',
+                                        borderRadius: '50%',
+                                        background: 'var(--bg-card)',
+                                        border: '1px solid var(--border-light)',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '20px',
+                                        color: 'var(--text-primary)'
+                                    }}
+                                    aria-label="Scroll right"
+                                >
+                                    ›
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>

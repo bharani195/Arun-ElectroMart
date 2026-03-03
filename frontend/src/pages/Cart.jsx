@@ -1,20 +1,23 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import toast from '../utils/toast';
 import { FiTrash2, FiMinus, FiPlus, FiShoppingBag, FiArrowLeft, FiShoppingCart } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useConfirm } from '../components/common/ConfirmDialog';
 
 const Cart = () => {
     const { cart, loading, updateCartItem, removeFromCart, clearCart } = useCart();
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
+    const confirm = useConfirm();
 
     const handleQuantityChange = async (itemId, newQuantity) => {
         if (newQuantity < 1) return;
         try {
             await updateCartItem(itemId, newQuantity);
         } catch (error) {
-            alert('Error updating quantity: ' + (error.response?.data?.message || error.message));
+            toast.error('Error updating quantity: ' + (error.response?.data?.message || error.message));
         }
     };
 
@@ -22,16 +25,17 @@ const Cart = () => {
         try {
             await removeFromCart(itemId);
         } catch (error) {
-            alert('Error removing item: ' + (error.response?.data?.message || error.message));
+            toast.error('Error removing item: ' + (error.response?.data?.message || error.message));
         }
     };
 
     const handleClearCart = async () => {
-        if (window.confirm('Are you sure you want to clear your cart?')) {
+        const ok = await confirm('Do you really want to clear your entire cart? This action cannot be undone.', { title: 'Clear Cart', confirmText: 'Clear All' });
+        if (ok) {
             try {
                 await clearCart();
             } catch (error) {
-                alert('Error clearing cart: ' + (error.response?.data?.message || error.message));
+                toast.error('Error clearing cart: ' + (error.response?.data?.message || error.message));
             }
         }
     };
@@ -49,7 +53,7 @@ const Cart = () => {
 
     if (!isAuthenticated) {
         return (
-            <div className="cart-page" style={{ marginTop: '140px', minHeight: '60vh' }}>
+            <div className="cart-page" style={{ minHeight: '60vh' }}>
                 <div className="container">
                     <div className="glass-card" style={{ textAlign: 'center', padding: 'var(--space-16)' }}>
                         <FiShoppingCart size={64} style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }} />
@@ -68,7 +72,7 @@ const Cart = () => {
 
     if (loading) {
         return (
-            <div className="cart-page" style={{ marginTop: '140px', minHeight: '60vh' }}>
+            <div className="cart-page" style={{ minHeight: '60vh' }}>
                 <div className="container">
                     <div style={{ display: 'flex', justifyContent: 'center', padding: 'var(--space-16)' }}>
                         <div className="loading-spinner"></div>
@@ -80,7 +84,7 @@ const Cart = () => {
 
     if (!cart.items || cart.items.length === 0) {
         return (
-            <div className="cart-page" style={{ marginTop: '140px', minHeight: '60vh' }}>
+            <div className="cart-page" style={{ minHeight: '60vh' }}>
                 <div className="container">
                     <div className="glass-card" style={{ textAlign: 'center', padding: 'var(--space-16)' }}>
                         <FiShoppingBag size={64} style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }} />
@@ -99,7 +103,7 @@ const Cart = () => {
     }
 
     return (
-        <div className="cart-page" style={{ marginTop: '140px', minHeight: '60vh' }}>
+        <div className="cart-page" style={{ minHeight: '60vh' }}>
             <div className="container">
                 {/* Header */}
                 <div style={{ marginBottom: 'var(--space-8)' }}>

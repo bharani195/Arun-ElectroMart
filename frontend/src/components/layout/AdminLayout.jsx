@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiGrid, FiPackage, FiShoppingCart, FiUsers, FiActivity, FiLogOut, FiFileText, FiLayers, FiBell, FiMessageSquare } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import '../../pages/admin/admin.css';
@@ -19,6 +19,12 @@ const navItems = [
 const AdminLayout = ({ children, activePage }) => {
     const { user, logout } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
+
+    const handleSignOut = () => {
+        logout();
+        navigate('/');
+    };
 
     // Auto-detect active page from URL if not provided
     const currentPage = activePage || (() => {
@@ -68,7 +74,7 @@ const AdminLayout = ({ children, activePage }) => {
                             <p className="admin-user-role">Administrator</p>
                         </div>
                     </div>
-                    <button onClick={logout} className="admin-signout-btn">
+                    <button onClick={handleSignOut} className="admin-signout-btn">
                         <FiLogOut size={16} />
                         Sign Out
                     </button>

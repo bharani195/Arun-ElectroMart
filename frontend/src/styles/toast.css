@@ -1,0 +1,205 @@
+/* =========================================================
+   Custom Toast Notifications — Full Override
+   ========================================================= */
+
+/* Container — top-right */
+.Toastify__toast-container {
+    z-index: 99999 !important;
+    width: auto !important;
+    max-width: 400px !important;
+    min-width: 300px !important;
+    padding: 0 !important;
+    top: 16px !important;
+    right: 16px !important;
+}
+
+/* Each Toast Card */
+.custom-toast.Toastify__toast {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    padding: 14px 16px !important;
+    min-height: unset !important;
+    margin-bottom: 10px !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    cursor: default !important;
+    display: inline-flex !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+/* Colored left accent bar — using pseudo-element to avoid border overlap */
+.custom-toast-success.Toastify__toast::before,
+.custom-toast-error.Toastify__toast::before,
+.custom-toast-warn.Toastify__toast::before,
+.custom-toast-info.Toastify__toast::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 8px 0 0 8px;
+}
+
+.custom-toast-success.Toastify__toast::before {
+    background: #22c55e;
+}
+
+.custom-toast-error.Toastify__toast::before {
+    background: #ef4444;
+}
+
+.custom-toast-warn.Toastify__toast::before {
+    background: #f59e0b;
+}
+
+.custom-toast-info.Toastify__toast::before {
+    background: #3b82f6;
+}
+
+/* Remove the border-left since we use ::before now */
+.custom-toast-success.Toastify__toast,
+.custom-toast-error.Toastify__toast,
+.custom-toast-warn.Toastify__toast,
+.custom-toast-info.Toastify__toast {
+    border-left: none !important;
+}
+
+/* Toast body — remove react-toastify defaults */
+.custom-toast .Toastify__toast-body {
+    padding: 0 !important;
+    margin: 0 !important;
+    flex: 1 !important;
+    align-items: flex-start !important;
+}
+
+/* Hide default icon from react-toastify */
+.custom-toast .Toastify__toast-icon {
+    display: none !important;
+}
+
+/* Our custom body layout */
+.custom-toast-body {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.custom-toast-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.custom-toast-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.custom-toast-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin: 0;
+    line-height: 1.45;
+}
+
+.custom-toast-msg {
+    font-size: 12px;
+    color: #64748b;
+    margin: 3px 0 0;
+    line-height: 1.4;
+}
+
+/* Custom Close Button */
+.custom-toast-close {
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    padding: 2px;
+    flex-shrink: 0;
+    transition: color 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+}
+
+.custom-toast-close:hover {
+    color: #475569;
+}
+
+.custom-toast-close:active {
+    transform: scale(0.92);
+}
+
+/* Progress bar — contained inside card, no overflow */
+.custom-toast .Toastify__progress-bar-wrp {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 3px !important;
+    border-radius: 0 0 8px 8px !important;
+    overflow: hidden !important;
+}
+
+.custom-toast .Toastify__progress-bar {
+    height: 3px !important;
+    opacity: 0.6 !important;
+    border-radius: 0 !important;
+}
+
+.custom-toast-progress-success {
+    background: #22c55e !important;
+}
+
+.custom-toast-progress-error {
+    background: #ef4444 !important;
+}
+
+.custom-toast-progress-warn {
+    background: #f59e0b !important;
+}
+
+.custom-toast-progress-info {
+    background: #3b82f6 !important;
+}
+
+/* Entrance animation — slide from right */
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(40px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.Toastify__bounce-enter--top-right {
+    animation: toastSlideIn 0.3s ease-out !important;
+}
+
+/* Exit animation — slide out right, no overlap glitch */
+@keyframes toastSlideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(60px);
+    }
+}
+
+.Toastify__bounce-exit--top-right {
+    animation: toastSlideOut 0.25s ease-in forwards !important;
+}

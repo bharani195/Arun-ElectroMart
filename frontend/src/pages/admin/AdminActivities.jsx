@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiFilter, FiRefreshCw, FiActivity } from 'react-icons/fi';
 import api from '../../utils/api';
 import AdminLayout from '../../components/layout/AdminLayout';
+import CustomDropdown from '../../components/common/CustomDropdown';
 
 const AdminActivities = () => {
     const [activities, setActivities] = useState([]);
@@ -81,15 +82,11 @@ const AdminActivities = () => {
             <div className="admin-filter-bar">
                 <FiFilter size={16} color="#9ca3af" />
                 <span style={{ fontSize: '13px', color: '#6b7280' }}>Filter by:</span>
-                <select
+                <CustomDropdown
                     value={filterType}
-                    onChange={(e) => { setFilterType(e.target.value); setPage(1); }}
-                    className="admin-select"
-                >
-                    {activityTypes.map(type => (
-                        <option key={type.value} value={type.value}>{type.label}</option>
-                    ))}
-                </select>
+                    onChange={(val) => { setFilterType(val); setPage(1); }}
+                    options={activityTypes}
+                />
             </div>
 
             {/* Activity List */}

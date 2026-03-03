@@ -22,7 +22,7 @@ const Wishlist = () => {
 
     if (!isAuthenticated) {
         return (
-            <div className="container" style={{ marginTop: '140px', minHeight: '60vh', textAlign: 'center' }}>
+            <div className="container" style={{ minHeight: '60vh', textAlign: 'center' }}>
                 <div className="glass-card" style={{ padding: 'var(--space-16)' }}>
                     <FiHeart size={64} style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }} />
                     <h2 style={{ marginBottom: 'var(--space-4)' }}>Please Login</h2>
@@ -39,7 +39,7 @@ const Wishlist = () => {
 
     if (loading) {
         return (
-            <div className="container" style={{ marginTop: '140px', minHeight: '60vh', display: 'flex', justifyContent: 'center' }}>
+            <div className="container" style={{ minHeight: '60vh', display: 'flex', justifyContent: 'center' }}>
                 <div className="loading-spinner"></div>
             </div>
         );
@@ -47,7 +47,7 @@ const Wishlist = () => {
 
     if (!wishlist || wishlist.length === 0) {
         return (
-            <div className="container" style={{ marginTop: '140px', minHeight: '60vh', textAlign: 'center' }}>
+            <div className="container" style={{ minHeight: '60vh', textAlign: 'center' }}>
                 <div className="glass-card" style={{ padding: 'var(--space-16)' }}>
                     <FiHeart size={64} style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }} />
                     <h2 style={{ marginBottom: 'var(--space-4)' }}>Your Wishlist is Empty</h2>
@@ -63,7 +63,7 @@ const Wishlist = () => {
     }
 
     return (
-        <div className="container" style={{ marginTop: '140px', minHeight: '80vh', paddingBottom: 'var(--space-16)' }}>
+        <div className="container" style={{ minHeight: '80vh', paddingBottom: 'var(--space-16)' }}>
             <div style={{
                 marginBottom: 'var(--space-8)',
                 background: 'var(--gradient-primary)',
