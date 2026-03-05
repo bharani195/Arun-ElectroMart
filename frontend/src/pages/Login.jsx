@@ -52,7 +52,7 @@ const Login = () => {
     return (
         <div style={{ background: 'var(--gray-50)', minHeight: 'calc(100vh - 400px)', padding: '3rem 0' }}>
             <div className="container">
-                <div style={{ maxWidth: '450px', margin: '0 auto' }}>
+                <div className="auth-card" style={{ maxWidth: '450px', margin: '0 auto' }}>
                     <div className="card" style={{ padding: '2.5rem' }}>
                         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                             <h1 style={{ marginBottom: '0.5rem' }}>Welcome Back</h1>

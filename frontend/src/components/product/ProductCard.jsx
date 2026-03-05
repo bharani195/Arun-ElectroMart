@@ -4,6 +4,7 @@ import { FiShoppingCart, FiHeart, FiEye } from 'react-icons/fi';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { secureUrl } from '../../utils/api';
 
 const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
@@ -59,7 +60,7 @@ const ProductCard = ({ product }) => {
         <Link to={`/product/${product._id}`} className="product-card">
             <div className="product-image-wrapper">
                 <img
-                    src={product.images?.[0] || '/placeholder-product.png'}
+                    src={secureUrl(product.images?.[0]) || '/placeholder-product.png'}
                     alt={product.name}
                     className="product-image"
                     onError={(e) => {

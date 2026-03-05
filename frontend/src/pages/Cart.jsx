@@ -5,6 +5,7 @@ import { FiTrash2, FiMinus, FiPlus, FiShoppingBag, FiArrowLeft, FiShoppingCart }
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useConfirm } from '../components/common/ConfirmDialog';
+import { secureUrl } from '../utils/api';
 
 const Cart = () => {
     const { cart, loading, updateCartItem, removeFromCart, clearCart } = useCart();
@@ -126,7 +127,7 @@ const Cart = () => {
                     </p>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 'var(--space-8)', alignItems: 'start' }}>
+                <div className="cart-layout">
                     {/* Cart Items */}
                     <div className="glass-card" style={{ padding: 'var(--space-6)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)', paddingBottom: 'var(--space-4)', borderBottom: '1px solid var(--border-light)' }}>
@@ -171,7 +172,7 @@ const Cart = () => {
                                         flexShrink: 0
                                     }}>
                                         <img
-                                            src={item.product?.images?.[0] || 'https://via.placeholder.com/100?text=No+Image'}
+                                            src={secureUrl(item.product?.images?.[0]) || 'https://via.placeholder.com/100?text=No+Image'}
                                             alt={item.product?.name}
                                             style={{
                                                 width: '100%',
@@ -321,17 +322,9 @@ const Cart = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Responsive styles */}
-            <style>{`
-                @media (max-width: 900px) {
-                    .cart-page .container > div:last-child {
-                        grid-template-columns: 1fr !important;
-                    }
-                }
-            `}</style>
         </div>
     );
 };
 
 export default Cart;
+

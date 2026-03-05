@@ -186,3 +186,29 @@
         transform: translate(-50%, -50%) scale(1.2);
     }
 }
+
+/* Responsive - reduce effects on mobile for performance */
+@media (max-width: 768px) {
+    .floating-particles {
+        display: none;
+    }
+
+    .gradient-mesh {
+        opacity: 0.2;
+    }
+
+    .mesh-gradient-1 {
+        width: 400px;
+        height: 400px;
+    }
+
+    .mesh-gradient-2 {
+        width: 300px;
+        height: 300px;
+    }
+
+    .mesh-gradient-3 {
+        width: 350px;
+        height: 350px;
+    }
+}

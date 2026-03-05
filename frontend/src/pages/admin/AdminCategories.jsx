@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import toast from '../../utils/toast';
-import { FiPlus, FiEdit2, FiTrash2, FiX, FiGrid, FiPackage, FiSearch } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiX, FiGrid, FiSearch, FiTag, FiCalendar, FiToggleRight } from 'react-icons/fi';
 import api from '../../utils/api';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { useConfirm } from '../../components/common/ConfirmDialog';
@@ -78,6 +78,8 @@ const AdminCategories = () => {
         cat.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    const activeCount = categories.filter(c => c.isActive).length;
+
     if (loading) {
         return (
             <AdminLayout activePage="categories">
@@ -93,11 +95,27 @@ const AdminCategories = () => {
                 <div className="cat-header">
                     <div>
                         <h1 className="cat-title">Categories</h1>
-                        <p className="cat-subtitle">{categories.length} categories</p>
+                        <p className="cat-subtitle">Manage your product categories</p>
                     </div>
                     <button className="cat-add-btn" onClick={openAdd}>
                         <FiPlus size={16} /> Add Category
                     </button>
+                </div>
+
+                {/* Stats */}
+                <div className="cat-stats-row">
+                    <div className="cat-stat-chip">
+                        <FiGrid size={14} />
+                        <span><strong>{categories.length}</strong> Total</span>
+                    </div>
+                    <div className="cat-stat-chip cat-stat-chip-active">
+                        <FiToggleRight size={14} />
+                        <span><strong>{activeCount}</strong> Active</span>
+                    </div>
+                    <div className="cat-stat-chip cat-stat-chip-inactive">
+                        <FiToggleRight size={14} style={{ transform: 'scaleX(-1)' }} />
+                        <span><strong>{categories.length - activeCount}</strong> Inactive</span>
+                    </div>
                 </div>
 
                 {/* Search */}
@@ -114,43 +132,75 @@ const AdminCategories = () => {
                     </div>
                 )}
 
-                {/* List */}
+                {/* Table */}
                 {filteredCategories.length === 0 ? (
                     <div className="cat-empty">
-                        <FiGrid size={36} />
-                        <h3>{searchQuery ? 'No results' : 'No categories yet'}</h3>
-                        <p>{searchQuery ? 'Try a different search' : 'Create your first category'}</p>
+                        <div className="cat-empty-icon">
+                            <FiGrid size={32} />
+                        </div>
+                        <h3>{searchQuery ? 'No matching categories' : 'No categories yet'}</h3>
+                        <p>{searchQuery ? 'Try a different search term' : 'Create your first category to get started'}</p>
+                        {!searchQuery && (
+                            <button className="cat-add-btn" onClick={openAdd} style={{ marginTop: 16 }}>
+                                <FiPlus size={16} /> Add Category
+                            </button>
+                        )}
                     </div>
                 ) : (
-                    <div className="cat-list">
-                        {filteredCategories.map((cat, i) => (
-                            <div key={cat._id} className="cat-row">
-                                <div className="cat-row-icon">
-                                    <FiPackage size={18} />
+                    <div className="cat-table-card">
+                        {/* Table Header */}
+                        <div className="cat-table-header">
+                            <span className="cat-th cat-th-num">#</span>
+                            <span className="cat-th cat-th-name">Category</span>
+                            <span className="cat-th cat-th-slug">Slug</span>
+                            <span className="cat-th cat-th-status">Status</span>
+                            <span className="cat-th cat-th-date">Created</span>
+                            <span className="cat-th cat-th-actions">Actions</span>
+                        </div>
+                        {/* Table Body */}
+                        <div className="cat-table-body">
+                            {filteredCategories.map((cat, i) => (
+                                <div key={cat._id} className="cat-row">
+                                    <span className="cat-cell cat-cell-num">{i + 1}</span>
+                                    <div className="cat-cell cat-cell-name">
+                                        <div className="cat-row-icon">
+                                            <FiTag size={16} />
+                                        </div>
+                                        <div className="cat-row-info">
+                                            <h4 className="cat-row-name">{cat.name}</h4>
+                                            <p className="cat-row-desc">{cat.description || 'No description'}</p>
+                                        </div>
+                                    </div>
+                                    <span className="cat-cell cat-cell-slug">
+                                        <code className="cat-slug-code">{cat.slug}</code>
+                                    </span>
+                                    <span className="cat-cell cat-cell-status">
+                                        <span className="cat-status-badge" data-active={cat.isActive}>
+                                            <span className="cat-status-dot"></span>
+                                            {cat.isActive ? 'Active' : 'Inactive'}
+                                        </span>
+                                    </span>
+                                    <span className="cat-cell cat-cell-date">
+                                        <FiCalendar size={12} />
+                                        {new Date(cat.createdAt).toLocaleDateString('en-IN', {
+                                            day: 'numeric', month: 'short', year: 'numeric'
+                                        })}
+                                    </span>
+                                    <div className="cat-cell cat-cell-actions">
+                                        <button className="cat-icon-btn cat-icon-btn-edit" onClick={() => openEdit(cat)} title="Edit">
+                                            <FiEdit2 size={13} />
+                                        </button>
+                                        <button className="cat-icon-btn cat-icon-btn-danger" onClick={() => handleDelete(cat._id)} title="Delete">
+                                            <FiTrash2 size={13} />
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="cat-row-info">
-                                    <h4 className="cat-row-name">{cat.name}</h4>
-                                    <p className="cat-row-desc">{cat.description || 'No description'}</p>
-                                </div>
-                                <span className="cat-row-slug">{cat.slug}</span>
-                                <span className="cat-row-status" data-active={cat.isActive}>
-                                    {cat.isActive ? 'Active' : 'Inactive'}
-                                </span>
-                                <span className="cat-row-date">
-                                    {new Date(cat.createdAt).toLocaleDateString('en-IN', {
-                                        day: 'numeric', month: 'short', year: 'numeric'
-                                    })}
-                                </span>
-                                <div className="cat-row-actions">
-                                    <button className="cat-icon-btn" onClick={() => openEdit(cat)} title="Edit">
-                                        <FiEdit2 size={14} />
-                                    </button>
-                                    <button className="cat-icon-btn cat-icon-btn-danger" onClick={() => handleDelete(cat._id)} title="Delete">
-                                        <FiTrash2 size={14} />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                        {/* Table Footer */}
+                        <div className="cat-table-footer">
+                            <span>Showing {filteredCategories.length} of {categories.length} categories</span>
+                        </div>
                     </div>
                 )}
             </div>
@@ -160,7 +210,12 @@ const AdminCategories = () => {
                 <div className="cat-modal-overlay" onClick={() => setShowModal(false)}>
                     <div className="cat-modal" onClick={e => e.stopPropagation()}>
                         <div className="cat-modal-header">
-                            <h3 className="cat-modal-title">{editing ? 'Edit Category' : 'New Category'}</h3>
+                            <div className="cat-modal-header-left">
+                                <div className="cat-modal-icon">
+                                    <FiTag size={18} />
+                                </div>
+                                <h3 className="cat-modal-title">{editing ? 'Edit Category' : 'New Category'}</h3>
+                            </div>
                             <button className="cat-modal-close" onClick={() => setShowModal(false)}>
                                 <FiX size={18} />
                             </button>

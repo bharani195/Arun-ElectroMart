@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FiGrid, FiPackage, FiShoppingCart, FiUsers, FiActivity, FiLogOut, FiFileText, FiLayers, FiBell, FiMessageSquare } from 'react-icons/fi';
+import { FiGrid, FiPackage, FiShoppingCart, FiUsers, FiActivity, FiLogOut, FiFileText, FiLayers, FiBell, FiMessageSquare, FiMenu, FiX } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import '../../pages/admin/admin.css';
 
@@ -20,11 +20,27 @@ const AdminLayout = ({ children, activePage }) => {
     const { user, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const handleSignOut = () => {
         logout();
         navigate('/');
     };
+
+    // Close sidebar on route change (mobile)
+    useEffect(() => {
+        setSidebarOpen(false);
+    }, [location.pathname]);
+
+    // Prevent body scroll when sidebar is open on mobile
+    useEffect(() => {
+        if (sidebarOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [sidebarOpen]);
 
     // Auto-detect active page from URL if not provided
     const currentPage = activePage || (() => {
@@ -36,8 +52,32 @@ const AdminLayout = ({ children, activePage }) => {
 
     return (
         <div className="admin-layout">
+            {/* Mobile Header */}
+            <div className="admin-mobile-header">
+                <button
+                    className="admin-mobile-toggle"
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    aria-label="Toggle menu"
+                >
+                    {sidebarOpen ? <FiX size={22} /> : <FiMenu size={22} />}
+                </button>
+                <Link to="/" className="admin-mobile-logo">
+                    <img src="/logo.jpg" alt="ElectroMart" />
+                    <span>ElectroMart</span>
+                </Link>
+                <p className="admin-mobile-badge">Admin</p>
+            </div>
+
+            {/* Sidebar Overlay (mobile) */}
+            {sidebarOpen && (
+                <div
+                    className="admin-sidebar-overlay"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="admin-sidebar">
+            <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
                 {/* Logo */}
                 <Link to="/" className="admin-sidebar-logo">
                     <img src="/logo.jpg" alt="ElectroMart" />

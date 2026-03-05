@@ -6,7 +6,7 @@ import {
 } from 'react-icons/fi';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import api from '../../utils/api';
+import api, { secureUrl } from '../../utils/api';
 import AdminLayout from '../../components/layout/AdminLayout';
 import CustomDropdown from '../../components/common/CustomDropdown';
 
@@ -411,7 +411,7 @@ const AdminOrders = () => {
                                             </h4>
                                             {order.items.map((item, index) => (
                                                 <div key={index} className="admin-order-item">
-                                                    <img src={item.image || 'https://via.placeholder.com/60'} alt={item.name} />
+                                                    <img src={secureUrl(item.image) || 'https://via.placeholder.com/60'} alt={item.name} />
                                                     <div>
                                                         <p className="admin-order-item-name">{item.name}</p>
                                                         <p className="admin-order-item-qty">

@@ -35,7 +35,7 @@
     background: white;
     border: 1px solid var(--border-light);
     border-radius: var(--radius-2xl);
-    padding: var(--space-8) var(--space-6);
+    padding: var(--space-5) var(--space-5);
     text-align: center;
     transition: var(--transition-base);
     cursor: pointer;
@@ -67,15 +67,15 @@
 }
 
 .category-icon {
-    width: 72px;
-    height: 72px;
-    margin: 0 auto var(--space-4);
+    width: 60px;
+    height: 60px;
+    margin: 0 auto var(--space-3);
     border-radius: var(--radius-2xl);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 32px;
+    font-size: 28px;
     transition: var(--transition-base);
 }
 

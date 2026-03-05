@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { FiSearch, FiChevronLeft, FiChevronRight, FiShoppingCart, FiHeart, FiStar, FiFilter, FiX } from 'react-icons/fi';
+import { FiSearch, FiChevronLeft, FiChevronRight, FiShoppingCart, FiHeart, FiStar, FiFilter, FiX, FiGrid, FiList } from 'react-icons/fi';
 import toast from '../utils/toast';
-import api from '../utils/api';
+import api, { secureUrl } from '../utils/api';
 import { useCart } from '../context/CartContext';
 import CustomDropdown from '../components/common/CustomDropdown';
 
@@ -109,16 +109,7 @@ const Products = () => {
                 </div>
 
                 {/* Filter Bar */}
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 'var(--space-6)',
-                    padding: 'var(--space-4)',
-                    background: 'var(--bg-card)',
-                    borderRadius: 'var(--radius-xl)',
-                    border: '1px solid var(--border-light)'
-                }}>
+                <div className="products-filter-bar">
                     <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center' }}>
                         <CustomDropdown
                             value={sortBy}
@@ -181,11 +172,9 @@ const Products = () => {
                         </p>
                     </div>
                 ) : (
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(280px, 1fr))' : '1fr',
-                        gap: 'var(--space-6)'
-                    }}>
+                    <div className={viewMode === 'grid' ? 'products-grid-responsive' : ''}
+                        style={viewMode === 'list' ? { display: 'grid', gridTemplateColumns: '1fr', gap: 'var(--space-6)' } : {}}
+                    >
                         {products.map((product) => (
                             <div
                                 key={product._id}
@@ -211,7 +200,7 @@ const Products = () => {
                                         overflow: 'hidden'
                                     }}>
                                         <img
-                                            src={product.images?.[0] || 'https://via.placeholder.com/300?text=No+Image'}
+                                            src={secureUrl(product.images?.[0]) || 'https://via.placeholder.com/300?text=No+Image'}
                                             alt={product.name}
                                             style={{
                                                 position: 'absolute',

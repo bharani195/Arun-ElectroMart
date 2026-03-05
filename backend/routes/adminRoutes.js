@@ -33,7 +33,11 @@ router.delete('/users/:id', deleteUser);
 // --- Notifications ---
 router.get('/notifications', async (req, res) => {
     try {
-        const notifications = await Notification.find().sort({ createdAt: -1 }).populate('createdBy', 'name');
+        const notifications = await Notification.find()
+            .sort({ createdAt: -1 })
+            .populate('createdBy', 'name')
+            .populate('product', 'name images price originalPrice discount slug brand')
+            .populate('targetCategory', 'name');
         res.json(notifications);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -42,12 +46,98 @@ router.get('/notifications', async (req, res) => {
 
 router.post('/notifications', async (req, res) => {
     try {
-        const { title, message, type, targetAudience } = req.body;
+        const {
+            title, message, type, targetAudience,
+            product: productId, targetCategory,
+            discountCode, discountPercent, offerExpiry,
+            sendEmail
+        } = req.body;
+
+        // Create notification
         const notification = await Notification.create({
             title, message, type, targetAudience,
+            product: productId || undefined,
+            targetCategory: targetCategory || undefined,
+            discountCode, discountPercent, offerExpiry,
+            sendEmail: !!sendEmail,
+            emailStatus: sendEmail ? 'pending' : undefined,
             createdBy: req.user._id,
         });
+
+        // Respond immediately (email sending is async)
         res.status(201).json(notification);
+
+        // Send emails asynchronously if requested
+        if (sendEmail && productId) {
+            // Dynamic imports to avoid circular deps
+            const { sendProductSpotlightEmail, sendDiscountOfferEmail, sendBulkEmails } = await import('../utils/emailService.js');
+            const Product = (await import('../models/Product.js')).default;
+            const User = (await import('../models/User.js')).default;
+            const Order = (await import('../models/Order.js')).default;
+
+            try {
+                // Update status to sending
+                await Notification.findByIdAndUpdate(notification._id, { emailStatus: 'sending' });
+
+                // Fetch the product
+                const product = await Product.findById(productId);
+                if (!product) throw new Error('Product not found');
+
+                // Build recipient list based on targetAudience
+                let recipients = [];
+                if (targetAudience === 'category_buyers' && targetCategory) {
+                    // Find products in the target category
+                    const categoryProducts = await Product.find({ category: targetCategory }).select('_id');
+                    const productIds = categoryProducts.map(p => p._id);
+
+                    // Find users who ordered those products
+                    const orders = await Order.find({ 'items.product': { $in: productIds } })
+                        .populate('user', 'name email')
+                        .select('user');
+
+                    // Deduplicate by user email
+                    const seen = new Set();
+                    orders.forEach(o => {
+                        if (o.user?.email && !seen.has(o.user.email)) {
+                            seen.add(o.user.email);
+                            recipients.push({ email: o.user.email, name: o.user.name || 'Customer' });
+                        }
+                    });
+                } else if (targetAudience === 'customers') {
+                    const users = await User.find({ role: 'user' }).select('name email');
+                    recipients = users.filter(u => u.email).map(u => ({ email: u.email, name: u.name || 'Customer' }));
+                } else {
+                    // all
+                    const users = await User.find({}).select('name email');
+                    recipients = users.filter(u => u.email).map(u => ({ email: u.email, name: u.name || 'Customer' }));
+                }
+
+                if (recipients.length === 0) {
+                    await Notification.findByIdAndUpdate(notification._id, { emailStatus: 'sent', emailsSent: 0 });
+                    return;
+                }
+
+                // Send based on type
+                let sentCount = 0;
+                if (type === 'discount_offer') {
+                    const discountInfo = { discountCode, discountPercent, offerExpiry };
+                    sentCount = await sendBulkEmails(sendDiscountOfferEmail, recipients, product, discountInfo, message);
+                } else {
+                    sentCount = await sendBulkEmails(sendProductSpotlightEmail, recipients, product, message);
+                }
+
+                await Notification.findByIdAndUpdate(notification._id, {
+                    emailStatus: 'sent',
+                    emailsSent: sentCount,
+                });
+                console.log(`✅ Notification emails sent: ${sentCount}/${recipients.length}`);
+
+            } catch (emailErr) {
+                console.error('❌ Failed to send notification emails:', emailErr.message);
+                await Notification.findByIdAndUpdate(notification._id, { emailStatus: 'failed' });
+            }
+        }
+
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

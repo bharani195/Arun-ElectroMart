@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import toast from '../utils/toast';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../utils/api';
+import api, { secureUrl } from '../utils/api';
 import {
     FiPackage,
     FiShoppingBag,
@@ -193,7 +193,7 @@ const Orders = () => {
                                 {/* Order Details (Expanded) */}
                                 {isExpanded && (
                                     <div style={{ marginTop: 'var(--space-6)' }}>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6)' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 'var(--space-6)' }}>
                                             {/* Order Items */}
                                             <div>
                                                 <h4 style={{ fontSize: 'var(--text-lg)', fontWeight: 600, marginBottom: 'var(--space-4)' }}>
@@ -212,7 +212,7 @@ const Orders = () => {
                                                             }}
                                                         >
                                                             <img
-                                                                src={item.image || 'https://via.placeholder.com/80'}
+                                                                src={secureUrl(item.image) || 'https://via.placeholder.com/80'}
                                                                 alt={item.name}
                                                                 style={{
                                                                     width: '80px',

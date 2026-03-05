@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import toast from '../../utils/toast';
 import { Link } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import api from '../../utils/api';
+import api, { secureUrl } from '../../utils/api';
 import AdminLayout from '../../components/layout/AdminLayout';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import { useConfirm } from '../../components/common/ConfirmDialog';
@@ -127,7 +127,7 @@ const AdminProducts = () => {
                                         <td>
                                             <div className="admin-product-cell">
                                                 <img
-                                                    src={product.images?.[0] || 'https://via.placeholder.com/50'}
+                                                    src={secureUrl(product.images?.[0]) || 'https://via.placeholder.com/50'}
                                                     alt={product.name}
                                                     className="admin-product-img"
                                                 />

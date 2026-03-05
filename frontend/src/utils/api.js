@@ -19,4 +19,16 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+/**
+ * Convert http:// image URLs to https:// to prevent Mixed Content warnings.
+ * Leaves relative URLs, data URIs, and already-https URLs unchanged.
+ */
+export const secureUrl = (url) => {
+    if (!url || typeof url !== 'string') return url;
+    if (url.startsWith('http://')) {
+        return url.replace('http://', 'https://');
+    }
+    return url;
+};
+
 export default api;

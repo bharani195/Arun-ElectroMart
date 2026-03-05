@@ -4,6 +4,7 @@ import { FiHeart, FiTrash2, FiShoppingCart, FiArrowLeft } from 'react-icons/fi';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { secureUrl } from '../utils/api';
 
 const Wishlist = () => {
     const { wishlist, loading, removeFromWishlist } = useWishlist();
@@ -86,7 +87,7 @@ const Wishlist = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 'var(--space-8)' }}>
+            <div className="products-grid-responsive">
                 {wishlist.filter(item => item && item._id).map((product) => (
                     <div key={product._id} className="product-card" style={{
                         position: 'relative',
@@ -100,7 +101,7 @@ const Wishlist = () => {
                         <Link to={`/product/${product._id}`}>
                             <div className="product-image" style={{ background: 'var(--bg-secondary)', height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                                 <img
-                                    src={product.images?.[0] || 'https://via.placeholder.com/300?text=No+Image'}
+                                    src={secureUrl(product.images?.[0]) || 'https://via.placeholder.com/300?text=No+Image'}
                                     alt={product.name}
                                     style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
                                 />
@@ -124,7 +125,7 @@ const Wishlist = () => {
                                 )}
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+                            <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
                                 <button
                                     onClick={() => handleMoveToCart(product)}
                                     className="btn btn-primary"

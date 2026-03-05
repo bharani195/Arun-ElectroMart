@@ -7,7 +7,7 @@ import {
     BarElement, Tooltip, Legend, Filler
 } from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';
-import api from '../../utils/api';
+import api, { secureUrl } from '../../utils/api';
 import AdminLayout from '../../components/layout/AdminLayout';
 import './admin.css';
 
@@ -404,7 +404,7 @@ const AdminDashboard = () => {
                                     <div className="drb-product-rank">{i + 1}</div>
                                     <img
                                         className="drb-product-thumb"
-                                        src={p.images?.[0] || ''}
+                                        src={secureUrl(p.images?.[0]) || ''}
                                         alt=""
                                         onError={(e) => { e.target.style.display = 'none'; }}
                                     />

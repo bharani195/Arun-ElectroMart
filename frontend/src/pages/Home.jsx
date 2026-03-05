@@ -155,10 +155,8 @@ const Home = () => {
 
                             <div
                                 id="trending-carousel"
+                                className="featured-products-grid"
                                 style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(4, 1fr)',
-                                    gap: 'var(--space-6)',
                                     animation: 'fadeIn 0.5s ease-in'
                                 }}
                             >

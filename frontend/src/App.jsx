@@ -30,6 +30,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminReports from './pages/admin/AdminReports';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminNotifications from './pages/admin/AdminNotifications';
+import AdminNotificationCreate from './pages/admin/AdminNotificationCreate';
 import AdminSupport from './pages/admin/AdminSupport';
 import Support from './pages/Support';
 import ScrollToTop from './components/common/ScrollToTop';
@@ -76,6 +77,7 @@ function App() {
                         <Route path="/admin/orders" element={<AdminOrders />} />
                         <Route path="/admin/reports" element={<AdminReports />} />
                         <Route path="/admin/notifications" element={<AdminNotifications />} />
+                        <Route path="/admin/notifications/create" element={<AdminNotificationCreate />} />
                         <Route path="/admin/support" element={<AdminSupport />} />
                         <Route path="/admin/users" element={<AdminUsers />} />
                         <Route path="/admin/activities" element={<AdminActivities />} />

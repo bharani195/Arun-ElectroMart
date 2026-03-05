@@ -5,7 +5,7 @@ import {
     FiCheckCircle, FiTruck, FiShield, FiRefreshCcw, FiCheck
 } from 'react-icons/fi';
 import toast from '../utils/toast';
-import api from '../utils/api';
+import api, { secureUrl } from '../utils/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -143,7 +143,7 @@ const ProductDetail = () => {
                     </Link>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-10)', alignItems: 'start' }}>
+                <div className="product-detail-layout">
                     {/* Left - Product Images */}
                     <div>
                         {/* Main Image */}
@@ -160,7 +160,7 @@ const ProductDetail = () => {
                                 background: 'var(--bg-secondary)'
                             }}>
                                 <img
-                                    src={product.images?.[selectedImage] || 'https://via.placeholder.com/500?text=No+Image'}
+                                    src={secureUrl(product.images?.[selectedImage]) || 'https://via.placeholder.com/500?text=No+Image'}
                                     alt={product.name}
                                     style={{
                                         position: 'absolute',
@@ -426,7 +426,7 @@ const ProductDetail = () => {
                         </div>
 
                         {/* Action Buttons */}
-                        <div style={{ display: 'flex', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
+                        <div style={{ display: 'flex', gap: 'var(--space-4)', marginBottom: 'var(--space-8)', flexWrap: 'wrap' }}>
                             <button
                                 onClick={handleAddToCart}
                                 disabled={product.stock === 0 || addingToCart}
@@ -485,7 +485,7 @@ const ProductDetail = () => {
 
                         {/* Features */}
                         <div className="glass-card" style={{ padding: 'var(--space-5)' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4)' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 'var(--space-4)' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                                     <div style={{
                                         width: '44px',
@@ -566,7 +566,7 @@ const ProductDetail = () => {
                             </h3>
                             <div style={{
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(2, 1fr)',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
                                 gap: 'var(--space-3)'
                             }}>
                                 {product.specifications.map((spec, idx) => (
@@ -602,7 +602,7 @@ const ProductDetail = () => {
                             <ul style={{
                                 listStyle: 'none',
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(2, 1fr)',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
                                 gap: 'var(--space-3)'
                             }}>
                                 {product.features.map((feature, idx) => (
@@ -616,17 +616,9 @@ const ProductDetail = () => {
                     )}
                 </div>
             </div>
-
-            {/* Responsive styles */}
-            <style>{`
-                @media (max-width: 900px) {
-                    .container > div:nth-child(2) {
-                        grid-template-columns: 1fr !important;
-                    }
-                }
-            `}</style>
         </div>
     );
 };
 
 export default ProductDetail;
+

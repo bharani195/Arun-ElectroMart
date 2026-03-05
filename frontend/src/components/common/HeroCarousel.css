@@ -2,7 +2,7 @@
 .hero-carousel {
     position: relative;
     width: 100%;
-    height: 600px;
+    height: 700px;
     overflow: hidden;
     margin-top: 0;
 }
@@ -159,32 +159,104 @@
 
 @media (max-width: 768px) {
     .hero-carousel {
-        height: 400px;
-        margin-top: 70px;
+        height: 380px;
+        margin-top: 0;
+    }
+
+    .carousel-text {
+        max-width: 85%;
     }
 
     .carousel-title {
-        font-size: var(--text-3xl);
+        font-size: var(--text-2xl);
     }
 
     .carousel-subtitle {
         font-size: var(--text-xs);
+        padding: var(--space-1) var(--space-3);
     }
 
     .carousel-description {
         font-size: var(--text-sm);
+        margin-bottom: var(--space-4);
     }
 
     .carousel-arrow {
-        width: 44px;
-        height: 44px;
+        width: 40px;
+        height: 40px;
     }
 
     .carousel-arrow-left {
-        left: var(--space-4);
+        left: var(--space-2);
     }
 
     .carousel-arrow-right {
-        right: var(--space-4);
+        right: var(--space-2);
+    }
+
+    .carousel-dots {
+        bottom: var(--space-4);
+    }
+
+    .carousel-dot {
+        width: 10px;
+        height: 10px;
+    }
+
+    .carousel-dot.active {
+        width: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-carousel {
+        height: 300px;
+    }
+
+    .carousel-text {
+        max-width: 90%;
+    }
+
+    .carousel-title {
+        font-size: var(--text-xl);
+        margin-bottom: var(--space-2);
+    }
+
+    .carousel-subtitle {
+        font-size: 10px;
+        letter-spacing: 1px;
+        margin-bottom: var(--space-2);
+    }
+
+    .carousel-description {
+        font-size: var(--text-xs);
+        margin-bottom: var(--space-3);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .carousel-arrow {
+        display: none;
+    }
+
+    .carousel-dots {
+        bottom: var(--space-3);
+        gap: var(--space-2);
+    }
+
+    .carousel-dot {
+        width: 8px;
+        height: 8px;
+    }
+
+    .carousel-dot.active {
+        width: 24px;
+    }
+
+    .carousel-content .btn {
+        padding: var(--space-2) var(--space-4);
+        font-size: var(--text-xs);
     }
 }

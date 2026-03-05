@@ -4,7 +4,7 @@ import toast from '../utils/toast';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useConfirm } from '../components/common/ConfirmDialog';
-import api from '../utils/api';
+import api, { secureUrl } from '../utils/api';
 import {
     FiMapPin,
     FiPlus,
@@ -248,7 +248,7 @@ const Checkout = () => {
                     Checkout
                 </h1>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--space-8)' }}>
+                <div className="checkout-layout">
                     {/* Left Column - Address & Payment */}
                     <div>
                         {/* Shipping Address Section */}
@@ -272,7 +272,7 @@ const Checkout = () => {
                             {showAddressForm && (
                                 <form onSubmit={handleAddAddress} style={{ marginBottom: 'var(--space-6)', padding: 'var(--space-5)', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
                                     <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-4)' }}>New Address</h3>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 'var(--space-4)' }}>
                                         <div>
                                             <label style={{ display: 'block', marginBottom: 'var(--space-2)', fontSize: 'var(--text-sm)', fontWeight: 500 }}>
                                                 Full Name *
@@ -523,7 +523,7 @@ const Checkout = () => {
                                 {cart?.items?.map((item) => (
                                     <div key={item._id} style={{ display: 'flex', gap: 'var(--space-3)', marginBottom: 'var(--space-4)', paddingBottom: 'var(--space-4)', borderBottom: '1px solid var(--border-light)' }}>
                                         <img
-                                            src={item.product.images?.[0] || 'https://via.placeholder.com/80'}
+                                            src={secureUrl(item.product.images?.[0]) || 'https://via.placeholder.com/80'}
                                             alt={item.product.name}
                                             style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: 'var(--radius-md)' }}
                                         />
@@ -595,17 +595,9 @@ const Checkout = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Responsive Styles */}
-            <style>{`
-                @media (max-width: 900px) {
-                    .container > div:first-child {
-                        grid-template-columns: 1fr !important;
-                    }
-                }
-            `}</style>
         </div>
     );
 };
 
 export default Checkout;
+
