@@ -3665,6 +3665,238 @@ textarea.admin-form-input {
     margin-top: 1px;
 }
 
+/* ── Product Selector ── */
+.ntf-product-select {
+    position: relative;
+}
+
+.ntf-product-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.ntf-product-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9CA3AF;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.ntf-product-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    max-height: 260px;
+    overflow-y: auto;
+    margin-top: 4px;
+}
+
+.ntf-product-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid #F9FAFB;
+}
+
+.ntf-product-option:last-child {
+    border-bottom: none;
+}
+
+.ntf-product-option:hover {
+    background: #F9FAFB;
+}
+
+.ntf-product-option-selected {
+    background: #F0FDF4 !important;
+}
+
+.ntf-product-option-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #f0ebe4;
+    flex-shrink: 0;
+    background: #faf7f2;
+}
+
+.ntf-product-option-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.ntf-product-option-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ntf-product-option-price {
+    font-size: 12px;
+    color: #6B7280;
+    font-weight: 500;
+}
+
+/* Selected product preview */
+.ntf-selected-product {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+    background: #faf7f2;
+    border: 1px solid #f0ebe4;
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+.ntf-selected-product img {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #f0ebe4;
+}
+
+.ntf-selected-product div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ntf-selected-product strong {
+    font-size: 13px;
+    color: #2D2520;
+}
+
+.ntf-selected-product span {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+.ntf-remove-product {
+    background: transparent;
+    border: none;
+    color: #9CA3AF;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.ntf-remove-product:hover {
+    color: #EF4444;
+    background: #FEE2E2;
+}
+
+/* ── Discount Fields Row ── */
+.ntf-discount-row {
+    display: flex;
+    gap: 12px;
+}
+
+/* ── Email Send Toggle ── */
+.ntf-email-toggle {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    user-select: none;
+    padding: 14px 18px;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+}
+
+.ntf-email-toggle:hover {
+    border-color: #D1D5DB;
+}
+
+.ntf-toggle-track {
+    width: 42px;
+    height: 24px;
+    border-radius: 12px;
+    background: #D1D5DB;
+    position: relative;
+    transition: background 0.25s;
+    flex-shrink: 0;
+}
+
+.ntf-toggle-active {
+    background: #10b981;
+}
+
+.ntf-toggle-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.25s;
+}
+
+.ntf-toggle-active .ntf-toggle-thumb {
+    transform: translateX(18px);
+}
+
+.ntf-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .ntf-create-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .ntf-create-preview {
+        position: static;
+    }
+}
+
+@media (max-width: 600px) {
+    .ntf-type-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ntf-discount-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+
 /* Form actions */
 .ntf-form-actions {
     display: flex;
