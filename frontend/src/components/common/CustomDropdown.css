@@ -1,11 +1,13 @@
 /* =========================================================
-   Custom Dropdown Component
+   Custom Dropdown Component — Clean & Professional
    ========================================================= */
 
 .cdd-wrapper {
     position: relative;
     font-family: 'Inter', -apple-system, sans-serif;
     font-size: 13px;
+    display: inline-block;
+    min-width: 140px;
 }
 
 .cdd-label {
@@ -20,9 +22,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 8px;
     width: 100%;
     text-align: left;
-    padding: 9px 12px;
+    padding: 8px 12px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     background: #ffffff;
@@ -31,6 +34,7 @@
     transition: all 0.15s ease;
     font-family: inherit;
     font-size: 13px;
+    line-height: 1.4;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
@@ -45,7 +49,7 @@
 }
 
 .cdd-trigger.cdd-disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
     background: #f3f4f6;
 }
@@ -62,9 +66,8 @@
     flex-shrink: 0;
     width: 10px;
     height: 14px;
-    color: #6b7280;
+    color: #9ca3af;
     transition: transform 0.2s ease;
-    margin-left: 8px;
 }
 
 /* Dropdown Menu */
@@ -72,16 +75,18 @@
     position: absolute;
     top: calc(100% + 4px);
     left: 0;
-    right: 0;
+    min-width: 100%;
+    width: max-content;
+    max-width: 320px;
     background: #ffffff;
     border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    padding: 4px 0;
-    z-index: 100;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.06);
+    padding: 4px;
+    z-index: 200;
     list-style: none;
     margin: 0;
-    max-height: 200px;
+    max-height: 240px;
     overflow-y: auto;
     animation: cddSlideDown 0.15s ease-out;
 }
@@ -89,7 +94,7 @@
 @keyframes cddSlideDown {
     from {
         opacity: 0;
-        transform: translateY(-4px);
+        transform: translateY(-6px);
     }
 
     to {
@@ -106,13 +111,17 @@
     padding: 8px 12px;
     cursor: pointer;
     color: #374151;
-    transition: all 0.1s ease;
-    gap: 8px;
+    transition: all 0.12s ease;
+    gap: 10px;
+    white-space: nowrap;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.4;
 }
 
 .cdd-item:hover {
-    background: #2D7B6C;
-    color: #ffffff;
+    background: #f0fdf9;
+    color: #2D7B6C;
 }
 
 .cdd-item-active {
@@ -123,6 +132,11 @@
 
 .cdd-item-active:hover {
     background: #245f55;
+    color: #ffffff;
+}
+
+.cdd-item svg {
+    flex-shrink: 0;
 }
 
 /* Scrollbar */
@@ -137,4 +151,8 @@
 .cdd-menu::-webkit-scrollbar-thumb {
     background: #d1d5db;
     border-radius: 4px;
+}
+
+.cdd-menu::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
 }

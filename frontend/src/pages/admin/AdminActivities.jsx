@@ -19,7 +19,12 @@ const AdminActivities = () => {
         { value: 'product_update', label: 'Product Updated' },
         { value: 'product_delete', label: 'Product Deleted' },
         { value: 'order_placed', label: 'Orders Placed' },
-        { value: 'cart_add', label: 'Cart Updates' },
+        { value: 'order_updated', label: 'Order Updates' },
+        { value: 'cart_add', label: 'Cart Additions' },
+        { value: 'cart_remove', label: 'Cart Removals' },
+        { value: 'category_create', label: 'Category Created' },
+        { value: 'category_update', label: 'Category Updated' },
+        { value: 'category_delete', label: 'Category Deleted' },
         { value: 'admin_action', label: 'Admin Actions' }
     ];
 

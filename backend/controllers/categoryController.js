@@ -1,4 +1,5 @@
 import Category from '../models/Category.js';
+import { logActivity } from './adminController.js';
 
 // @desc    Get all categories
 // @route   GET /api/categories
@@ -43,6 +44,9 @@ export const createCategory = async (req, res) => {
             image,
         });
 
+        // Log category creation
+        await logActivity(req, 'category_create', `Created category: ${category.name}`, { categoryId: category._id, name: category.name });
+
         res.status(201).json(category);
     } catch (error) {
         if (error.code === 11000) {
@@ -70,6 +74,10 @@ export const updateCategory = async (req, res) => {
             if (isActive !== undefined) category.isActive = isActive;
 
             const updatedCategory = await category.save();
+
+            // Log category update
+            await logActivity(req, 'category_update', `Updated category: ${updatedCategory.name}`, { categoryId: updatedCategory._id, name: updatedCategory.name });
+
             res.json(updatedCategory);
         } else {
             res.status(404).json({ message: 'Category not found' });
@@ -87,7 +95,12 @@ export const deleteCategory = async (req, res) => {
         const category = await Category.findById(req.params.id);
 
         if (category) {
+            const categoryName = category.name;
             await category.deleteOne();
+
+            // Log category deletion
+            await logActivity(req, 'category_delete', `Deleted category: ${categoryName}`, { categoryId: req.params.id, name: categoryName });
+
             res.json({ message: 'Category deleted successfully' });
         } else {
             res.status(404).json({ message: 'Category not found' });

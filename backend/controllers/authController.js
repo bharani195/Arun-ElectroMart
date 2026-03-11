@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import generateToken from '../utils/generateToken.js';
+import { logActivity } from './adminController.js';
 
 // @desc    Register new user
 // @route   POST /api/auth/register
@@ -24,6 +25,10 @@ export const register = async (req, res) => {
         });
 
         if (user) {
+            // Log registration activity
+            req.user = user;
+            await logActivity(req, 'user_register', `New user registered: ${user.name} (${user.email})`, { userId: user._id, name: user.name, email: user.email });
+
             res.status(201).json({
                 _id: user._id,
                 name: user.name,
@@ -66,6 +71,10 @@ export const login = async (req, res) => {
         if (!isPasswordMatch) {
             return res.status(401).json({ message: 'Invalid password' });
         }
+
+        // Log login activity
+        req.user = user;
+        await logActivity(req, 'user_login', `User logged in: ${user.name} (${user.email})`, { userId: user._id, name: user.name, email: user.email });
 
         // Success - return user data with token
         res.json({

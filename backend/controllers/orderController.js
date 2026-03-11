@@ -2,6 +2,7 @@ import Order from '../models/Order.js';
 import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
 import generateOrderNumber from '../utils/generateOrderNumber.js';
+import { logActivity } from './adminController.js';
 
 // @desc    Create new order
 // @route   POST /api/orders/create
@@ -64,6 +65,9 @@ export const createOrder = async (req, res) => {
 
         // Clear user cart
         await Cart.findOneAndUpdate({ user: req.user._id }, { items: [] });
+
+        // Log order placed activity
+        await logActivity(req, 'order_placed', `Order #${order.orderNumber} placed — ₹${order.totalAmount}`, { orderId: order._id, orderNumber: order.orderNumber, totalAmount: order.totalAmount });
 
         res.status(201).json(order);
     } catch (error) {
@@ -178,6 +182,9 @@ export const updateOrderStatus = async (req, res) => {
         }
 
         await order.save();
+
+        // Log order status update
+        await logActivity(req, 'order_updated', `Order #${order.orderNumber} status → ${order.orderStatus}`, { orderId: order._id, orderNumber: order.orderNumber, orderStatus: order.orderStatus, paymentStatus: order.paymentStatus });
 
         res.json(order);
     } catch (error) {

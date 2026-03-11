@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FiGrid, FiPackage, FiShoppingCart, FiUsers, FiActivity, FiLogOut, FiFileText, FiLayers, FiBell, FiMessageSquare, FiMenu, FiX } from 'react-icons/fi';
+import { FiGrid, FiPackage, FiShoppingCart, FiUsers, FiActivity, FiLogOut, FiFileText, FiLayers, FiBell, FiMessageSquare, FiMenu, FiX, FiArrowLeft } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import '../../pages/admin/admin.css';
 
@@ -114,6 +114,10 @@ const AdminLayout = ({ children, activePage }) => {
                             <p className="admin-user-role">Administrator</p>
                         </div>
                     </div>
+                    <Link to="/" className="admin-signout-btn" style={{ color: '#2D7B6C', marginBottom: '4px' }}>
+                        <FiArrowLeft size={16} />
+                        Back To Store
+                    </Link>
                     <button onClick={handleSignOut} className="admin-signout-btn">
                         <FiLogOut size={16} />
                         Sign Out

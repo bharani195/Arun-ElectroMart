@@ -1,5 +1,6 @@
 import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
+import { logActivity } from './adminController.js';
 
 // @desc    Get user cart
 // @route   GET /api/cart
@@ -62,6 +63,9 @@ export const addToCart = async (req, res) => {
         await cart.save();
         await cart.populate('items.product');
 
+        // Log cart add activity
+        await logActivity(req, 'cart_add', `Added ${product.name} (qty: ${quantity}) to cart`, { productId, productName: product.name, quantity });
+
         res.json(cart);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -119,6 +123,9 @@ export const removeFromCart = async (req, res) => {
 
         await cart.save();
         await cart.populate('items.product');
+
+        // Log cart remove activity
+        await logActivity(req, 'cart_remove', `Removed item from cart`, { itemId: req.params.itemId });
 
         res.json(cart);
     } catch (error) {
